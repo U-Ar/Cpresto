@@ -115,7 +115,6 @@ from ..exception.SemanticError import *
 from ..exception.SemanticException import *
 from ..exception.SyntaxException import *
 
-from .ParserInit import *
 }
 
 @parser::members 
@@ -139,9 +138,21 @@ def new_file_parser(filename,loader,error_handler,debug):
                 input_stream = FileStream(filename)
                 lexer = CprestoLexer(input_stream)
                 stream = CommonTokenStream(lexer)
-                parser_init(stream,filename,loader,error_handler,debug)
+                return CprestoParser.parser_init(stream,filename,loader,error_handler,debug)
         except FileNotFoundError as ex:
                 raise FileException(ex.message)
+        except Exception as ex:
+                raise Exception("UTF-8 is not supported?: "+ex.message)
+
+#__init__ is not overriden
+@classmethod
+def parser_init(s,name,loader,error_handler,debug=None):
+        parser = CprestoParser(s)
+        parser.source_name = name
+        parser.loader = loader
+        parser.error_handler = error_handler
+        parser.known_typedefs = set()
+        return parser
 
 def parse(self):
         try:
@@ -149,11 +160,479 @@ def parse(self):
         except Exception as ex:
                 raise SyntaxException(ex.message)
 
+def parse_decls(self):
+        try:
+                return self.declaration_file()
+        except Exception as ex:
+                raise SyntaxException(ex.message)
 
+def add_known_typedefs(self,typedefs):
+        for n in typedefs:
+                self.add_type(n.name())
+
+def add_type(self,name):
+        self.known_typedefs.add(name)
+
+def is_type(self,name): 
+        return name in self.known_typedefs
+
+def integer_node(self,loc,image):
+        i = self.integer_value(image)
+        if image.endswith("UL"):
+                return IntegerLiteralNode(loc,IntegerTypeRef.ulong_ref(),i)
+        elif image.endswith("L"):
+                return IntegerLiteralNode(loc,IntegerTypeRef.long_ref(),i)
+        elif image.endswith("U"):
+                return IntegerLiteralNode(loc,IntegerTypeRef.uint_ref(),i)
+        else:
+                return IntegerLiteralNode(loc,IntegerTypeRef.int_ref(),i)
+
+def integer_value(self,image):
+        s = image.replace("U","").replace("L","")
+        if s.startswith("0x") or s.startswith("0X"):
+                return int(s, 16)
+        elif s.startswith("0") and (s != "0"):
+                return int(s,8)
+        else :
+                return int(s)
+
+def character_code(self,image):
+        s = self.string_value(image)
+        if len(s) != 1:
+                raise Exception("must not happen: character length > 1")
+        return ord(s)
+
+def string_value(self,_image):
+        pos = 0
+        idx = 0
+        buf = ""
+        image = _image[1:-1]
+        while (idx = image.index("\\",pos)) >= 0:
+                buf += image[pos:idx]
+                if len(image) >= idx + 4 and image[idx+1].isdigit() and \
+                   image[idx+2].isdigit() and image[idx+3].isdigit():
+                        buf += self.unescape_octal(image[idx+1:idx+4])
+                        pos = idx + 4
+                else :
+                        buf += self.unescape_seq(image[idx+1])
+                        pos = idx + 2
+        if pos < len(image):
+                buf += image[pos:len(image)]
+        return buf
+
+def size_t(self):
+        return IntegerTypeRef.ulong_ref()
+
+char_max = 255
+
+def unescape_octal(self,digits):
+        i = int(digits,8)
+        if i > CprestoParser.char_max:
+                raise ParseException("octal character sequence too big: \\" + digits)
+        return chr(i)
+
+bell = 7
+backspace = 8
+escape = 27
+vt = 11
+
+def unescape_seq(self,c):
+        if c == '0':
+                return '\0'
+        elif c == '"':
+                return '"'
+        elif c == '\'':
+                return '\''
+        elif c == 'a':
+                return chr(CprestoParser.bell)
+        elif c == 'b':
+                return chr(CprestoParser.backspace)
+        elif c == 'e':
+                return chr(CprestoParser.escape)
+        elif c == 'f':
+                return '\f'
+        elif c == 'n':
+                return '\n'
+        elif c == 'r':
+                return '\r'
+        elif c == 't':
+                return '\t'
+        elif c == 'v':
+                return chr(CprestoParser.vt)
+        else :
+                raise ParseException("unknown escape sequence: \"\\" + c)
+
+def location(self,t):
+        return Location(self.source_name,t)
 
 } // @parser::members
 
-//----tokens----
+
+
+//----parser rules----
+import_stmts returns [res] locals [decls,impdecls=Declarations()] :
+        (libid=import_stmt
+{
+try:
+        $decls = self.loader.load_library(libid,self.error_handler)
+        if $decls != None:
+                $impdecls.add($decls)
+                self.add_known_typedefs($decls.typedefs())
+except CompileException as ex:
+        raise ParseException(ex.message)
+}
+        )*
+{
+$res = $impdecls
+} ;
+
+
+import_stmt returns [res] locals [buf=""] :
+        IMPORT n=name
+{
+$buf += $n.text
+}
+        ('.' n=name
+{
+$buf += '.' + $n.text
+}
+        )* ';'
+{
+$res = $buf
+} ;
+
+
+
+name returns [res] locals [] : 
+        t=IDENTIFIER 
+{
+        $res = $t.text
+};
+
+top_defs returns [res] locals [decls=Declarations()] :
+        ( df=defun      
+{ 
+$decls.add_defun(df) 
+}
+        | dv=defvars    
+{ 
+$decls.add_defvars(dv) 
+}
+        | dc=defconst   
+{ 
+$decls.add_constant(dc) 
+}
+        | ds=defstruct  
+{ 
+$decls.add_defstruct(ds) 
+}
+        | du=defunion  
+{ 
+$decls.add_defunion(du) 
+}
+        | td=typedef    
+{ 
+$decls.add_typedef(td) 
+}
+        )*
+{ 
+$res = $decls 
+} ;
+
+defvars returns [res] locals [defs=list(),initflag=False] :
+        priv=storage t=typename n=name ('=' init=expr 
+{
+if init != None:
+        $initflag = True
+}       
+        )? 
+{
+$defs.append(DefinedVariable(priv,t,n,None) if not $initflag else DefinedVariable(priv,t,n,init))
+$initflag=False
+}
+        ( ',' n=name ('=' init=expr 
+{
+if init != None:
+        $initflag = True
+}       
+        )?
+{
+$defs.append(DefinedVariable(priv,t,n,None) if not $initflag else DefinedVariable(priv,t,n,init))
+$initflag=False
+}
+        )* ';'
+{
+$res = $defs
+} ;
+
+
+storage returns [res] locals [] :
+        (t=STATIC)?
+{
+$res = False if t == None else True
+} ;
+
+defun returns [res] locals [t] :
+        priv=storage ret=typeref n=name '(' ps=params ')' body=block
+{
+$t = FunctionTypeRef(ret,ps.parameters_type_ref()); 
+$res = DefinedFunction(priv,TypeNode($t),n,ps,body)
+} ;
+
+params      : VOID | fixedparams (',' '...')? ;
+fixedparams : param (',' param)* ;
+param       : typename name ;
+block returns [res] locals [] :
+        t='{' v=defvar_list s=stmts '}'
+        {$res = BlockNode(location($t),$v,$s)} ;
+
+defvar_list returns [res] locals [l=list()] :
+        (vars=defvars { $l += $vars })*
+        {$res = $l} ;
+
+defconst    : CONST typename name '=' expr ';' ;
+defstruct   : STRUCT name member_list ';' ;
+defunion    : UNION  name member_list ';' ;
+member_list : '{' (slot ';')* '}' ;
+slot        : typename name ;
+typedef     : TYPEDEF typeref IDENTIFIER ';' ;
+
+typename    : typeref ;
+typeref     : typeref_base
+              ('[' ']'
+              | '[' INTEGER ']'
+              | '*' 
+              | '(' param_typerefs ')')* ;
+param_typerefs : VOID 
+               | fixedparam_typerefs (',' '...' )? ;
+fixedparam_typerefs :  typeref (',' typeref)* ;
+
+typeref_base : VOID  
+             | CHAR 
+             | SHORT 
+             | INT 
+             | LONG 
+             | UNSIGNED CHAR
+             | UNSIGNED SHORT
+             | UNSIGNED INT
+             | UNSIGNED LONG
+             | STRUCT IDENTIFIER
+             | UNION IDENTIFIER 
+             | IDENTIFIER ; //typeとして登録されてるもののみ許可する必要
+
+
+stmts returns [res] locals [ss=list()] :
+        (s=stmt {if $s != None:{ $ss.append($s) }})*
+        {$res = $ss} ; 
+
+stmt         : ';'
+             | labeled_stmt 
+             | expr ';'
+             | block 
+             | if_stmt
+             | while_stmt
+             | dowhile_stmt
+             | for_stmt
+             | switch_stmt
+             | break_stmt
+             | continue_stmt
+             | goto_stmt
+             | return_stmt ;
+labeled_stmt : IDENTIFIER ':' stmt ;
+if_stmt returns [res] locals [elseflag=False] :
+        t=IF '(' cond=expr ')' thenbody=stmt (ELSE elsebody=stmt {$elseflag=True})?
+        {$res = IfNode(location($t),$cond,$thenbody,None) if not $elseflag else IfNode(location($t),$cond,$thenbody,$elsebody)} ;
+
+while_stmt returns [res] locals [] :
+        t=WHILE '(' cond=expr ')' body=stmt
+        {$res = WhileNode(location($t),$cond,$body)} ;
+dowhile_stmt : DO stmt WHILE '(' expr ')' ';' ;
+for_stmt     : FOR '(' (expr)? ';' (expr)? ';' (expr)? ')' stmt ;
+switch_stmt  : SWITCH '(' expr ')' '{' case_clauses '}' ;
+case_clauses : (case_clause)* ;
+case_clause  : cases case_body ;
+cases        : (CASE primary ':')+ ;
+default_clause : DEFAULT ':' case_body;
+case_body    : (stmt)+ ;
+break_stmt   : BREAK ';' ;
+continue_stmt: CONTINUE ';' ;
+goto_stmt    : GOTO IDENTIFIER ';' ;
+return_stmt  : RETURN ';' 
+             | RETURN expr ';' ;
+
+expr returns [res] locals [] :
+        lhs=term '=' rhs=expr
+        {$res = AssignNode($lhs,$rhs)}
+        | lhs=term op=opassign_op rhs=expr
+          {$res = OpAssignNode($lhs,$op,$rhs)}
+        | e=expr10
+          {$res = $e} ;
+
+opassign_op returns [res] locals [] :
+          '+=' {$res = '+'}
+        | '-=' {$res = '-'}
+        | '*=' {$res = '*'}
+        | '/=' {$res = '/'}
+        | '%=' {$res = '%'}
+        | '&=' {$res = '&'}
+        | '|=' {$res = '|'}
+        | '^=' {$res = '^'}
+        | '<<=' {$res = '<<'}
+        | '>>=' {$res = '>>'} ;
+
+expr10 returns [res] locals [] :
+        c=expr9 {$res = $c}
+        ('?' t=expr ':' e=expr10
+                 {$res = CondExprNode($c,$t,$e)})? ;
+
+expr9 returns [res] locals [] :
+        l=expr8
+        ('||' r=expr8  {$l = LogicalOrNode($l,$r)}
+        )*
+        {$res = $l} ;
+
+expr8 returns [res] locals [] :
+        l=expr7
+        ('&&' r=expr7  {$l = LogicalAndNode($l,$r)}
+        )*
+        {$res = $l} ;
+
+expr7 returns [res] locals [] :
+        l=expr6
+        ('>' r=expr6 {$l = BinaryOpNode($l,'>',$r)}
+        |'<' r=expr6 {$l = BinaryOpNode($l,'<',$r)}
+        |'>=' r=expr6 {$l = BinaryOpNode($l,'>=',$r)}
+        |'<=' r=expr6 {$l = BinaryOpNode($l,'<=',$r)}
+        |'==' r=expr6 {$l = BinaryOpNode($l,'==',$r)}
+        |'!=' r=expr6 {$l = BinaryOpNode($l,'!=',$r)}
+        )*
+        {$res = $l} ;
+
+expr6 returns [res] locals [] :
+        l=expr5 
+        ('|' r=expr5  {$l = BinaryOpNode($l,'|',$r)}
+        )*
+        {$res = $l} ;
+
+expr5 returns [res] locals [] :
+        l=expr4 
+        ('^' r=expr4  {$l = BinaryOpNode($l,'^',$r)}
+        )*
+        {$res = $l} ;
+
+expr4 returns [res] locals [] :
+        l=expr3 
+        ('&' r=expr3  {$l = BinaryOpNode($l,'&',$r)}
+        )*
+        {$res = $l} ;
+
+expr3 returns [res] locals [] :
+        l=expr2 
+        ('>>' r=expr2  {$l = BinaryOpNode($l,'>>',$r)}
+        |'<<' r=expr2  {$l = BinaryOpNode($l,'<<',$r)}
+        )*
+        {$res = $l} ;
+
+expr2 returns [res] locals [] :
+        l=expr1
+        ('+' r=expr1  {$l = BinaryOpNode($l,'+',$r)}
+        |'-' r=expr1  {$l = BinaryOpNode($l,'-',$r)}
+        )*
+        {$res = $l} ;
+
+expr1 returns [res] locals [] :
+        l=term 
+        ('*' r=term  {$l = BinaryOpNode($l,'*',$r)}
+        |'/' r=term  {$l = BinaryOpNode($l,'/',$r)}
+        |'%' r=term  {$l = BinaryOpNode($l,'%',$r)}
+        )*
+        {$res = $l} ;
+
+term returns [res] locals [] :
+        '(' t=typename ')' n=term {$res = CastNode($t,$n)} |
+        u=unary                   {$res = $u};
+
+unary returns [res] locals [] :
+        '++' n=unary   {$res = PrefixOpNode('++',$n)} |
+        '--' n=unary   {$res = PrefixOpNode('--',$n)} |
+        '+'  m=term    {$res = UnaryOpNode('+',$m)}   |
+        '-'  m=term    {$res = UnaryOpNode('-',$m)}   |
+        '!'  m=term    {$res = UnaryOpNode('!',$m)}   |
+        '~'  m=term    {$res = UnaryOpNode('~',$m)}   |
+        '*'  m=term    {$res = DereferenceNode($m)}   |
+        '&'  m=term    {$res = AddressNode($m)}       |
+        SIZEOF '(' t=typename ')' {$res = SizeofTypeNode($t,size_t())} |
+        SIZEOF n=unary {$res = SizeofExprNode($n,size_t())} |
+        p=postfix      {$res = $p} ;
+
+postfix returns [res] locals [] :
+        e=primary 
+        ('++'                   {$e = SuffixOpNode('++',$e)}
+        |'--'                   {$e = SuffixOpNode('--',$e)}
+        |'[' idx=expr ']'       {$e = ArefNode($e,$idx)}
+        |'.' memb=name          {$e = MemberNode($e,$memb)}
+        |'->' memb=name         {$e = PtrMemberNode($e,$memb)}
+        |'(' ags=args ')'       {$e = FuncallNode($e,$ags)}   
+        )*
+        {res = $e} ;
+        
+
+args         : (expr (',' expr)*)? ;
+primary returns [res] locals []:
+        t=INTEGER {$res =  integer_node(location($t),$t.text)} |
+        t=CHARACTER {$res =  IntegerLiteralNode(location($t),IntegerTypeRef.char_ref(),character_code($t.text))} |
+        t=STRING {$res =  StringLiteralNode(location($t),PointerTypeRef(IntegerTypeRef.char_ref()),string_value($t.text))} |
+        t=IDENTIFIER {$res =  VariableNode(loc=location($t),name=$t.text)} |
+        '(' e=expr ')' {$res = $e};
+
+compilation_unit returns [res] locals [t] :
+{
+$t = self._input.LT(1)
+}
+        impdecls=import_stmts decls=top_defs
+{
+decls.add(impdecls)
+$res=AST(self.location($t),decls) 
+} ;
+
+declaration_file returns [res] locals [decls=Declarations()] :
+        impdecls=import_stmts
+{ 
+$decls.add(impdecls)
+}
+        (fdecl=funcdecl
+{ 
+$decls.add(fdecl)
+}   
+        |vdecl=vardecl
+{
+$decls.add(vdecl)
+}
+        |defc=defconst
+{
+$decls.add(defc)
+}
+        |defs=defstruct
+{
+$decls.add(defs)
+}
+        |defu=defunion
+{
+$decls.add(defu)
+}
+        |tdef=typedef
+{
+$decls.add(tdef)
+}
+        )*
+{
+$res = $decls
+} ;
+
+
+
+
+//----lexer rules----
 VOID     : 'void';
 CHAR     : 'char';
 SHORT    : 'short';
@@ -198,268 +677,3 @@ BLOCK_COMMENT : '/*' .*? '*/';
 STRING : '"' ('\\"' | . )*? '"';
 
 CHARACTER : '\'' ('\\' . | ~('\\')) '\'';
-
-
-//----grammar----
-
-import_stmts[] returns[res] locals[decls,impdecls=Declarations()] :
-        (libid=import_stmt
-                {try:{ 
-                        $decls = loader.load_library($libid,error_handler); if $decls != None:{ $impdecls.add($decls); add_known_typedefs($decls.typedefs()) }
-                 }except CompileException as ex:{
-                        raise ParseException(ex.message)
-                 }}
-        )*
-        {$res = $impdecls} ;
-
-import_stmt : IMPORT name ('.' name)* ';' ; 
-
-
-
-
-name : IDENTIFIER ;
-
-top_defs[] returns[res] locals[decls=Declarations()] :
-        ( df=defun      { $decls.add_defun($df) }
-        | dv=defvars    { $decls.add_defvars($dv) }
-        | dc=defconst   { $decls.add_constant($dc) }
-        | ds=defstruct  { $decls.add_defstruct($ds) }
-        | du=defunion   { $decls.add_defunion($du) }
-        | td=typedef    { $decls.add_typedef($td) }
-        )*
-        { $res = $decls } ;
-
-defvars[] returns[res] locals[defs=list(),initflag=False] :
-        priv=storage t=typename n=name ('=' init=expr {$initflag=True})? 
-        {
-                $defs.append(DefinedVariable($priv,$t,$n,None) if not $initflag else DefinedVariable($priv,$t,$n,$init)); $initflag=False
-        }
-        ( ',' n=name ('=' init=expr {$initflag=True})?
-        {
-                $defs.append(DefinedVariable($priv,$t,$n,None) if not $initflag else DefinedVariable($priv,$t,$n,$init)); $initflag=False
-        }
-        )* ';'
-        {
-                $res = $defs
-        } ;
-
-
-
-storage     : (STATIC)? ;
-
-defun[] returns[res] locals[t] :
-        priv=storage ret=typeref n=name '(' ps=params ')' body=block
-        {
-                $t = FunctionTypeRef($ret,$ps.parameters_type_ref()); $res = DefinedFunction($priv,TypeNode($t),$n,$ps,$body)
-        } ;
-
-params      : VOID | fixedparams (',' '...')? ;
-fixedparams : param (',' param)* ;
-param       : typename name ;
-block[] returns[res] locals[] :
-        t='{' v=defvar_list s=stmts '}'
-        {$res = BlockNode(location($t),$v,$s)} ;
-
-defvar_list[] returns[res] locals[l=list()] :
-        (vars=defvars { $l += $vars })*
-        {$res = $l} ;
-
-defconst    : CONST typename name '=' expr ';' ;
-defstruct   : STRUCT name member_list ';' ;
-defunion    : UNION  name member_list ';' ;
-member_list : '{' (slot ';')* '}' ;
-slot        : typename name ;
-typedef     : TYPEDEF typeref IDENTIFIER ';' ;
-
-typename    : typeref ;
-typeref     : typeref_base
-              ('[' ']'
-              | '[' INTEGER ']'
-              | '*' 
-              | '(' param_typerefs ')')* ;
-param_typerefs : VOID 
-               | fixedparam_typerefs (',' '...' )? ;
-fixedparam_typerefs :  typeref (',' typeref)* ;
-
-typeref_base : VOID  
-             | CHAR 
-             | SHORT 
-             | INT 
-             | LONG 
-             | UNSIGNED CHAR
-             | UNSIGNED SHORT
-             | UNSIGNED INT
-             | UNSIGNED LONG
-             | STRUCT IDENTIFIER
-             | UNION IDENTIFIER 
-             | IDENTIFIER ; //typeとして登録されてるもののみ許可する必要
-
-
-stmts[] returns[res] locals[ss=list()] :
-        (s=stmt {if $s != None:{ $ss.append($s) }})*
-        {$res = $ss} ; 
-
-stmt         : ';'
-             | labeled_stmt 
-             | expr ';'
-             | block 
-             | if_stmt
-             | while_stmt
-             | dowhile_stmt
-             | for_stmt
-             | switch_stmt
-             | break_stmt
-             | continue_stmt
-             | goto_stmt
-             | return_stmt ;
-labeled_stmt : IDENTIFIER ':' stmt ;
-if_stmt[] returns[res] locals[elseflag=False] :
-        t=IF '(' cond=expr ')' thenbody=stmt (ELSE elsebody=stmt {$elseflag=True})?
-        {$res = IfNode(location($t),$cond,$thenbody,None) if not $elseflag else IfNode(location($t),$cond,$thenbody,$elsebody)} ;
-
-while_stmt[] returns[res] locals[] :
-        t=WHILE '(' cond=expr ')' body=stmt
-        {$res = WhileNode(location($t),$cond,$body)} ;
-dowhile_stmt : DO stmt WHILE '(' expr ')' ';' ;
-for_stmt     : FOR '(' (expr)? ';' (expr)? ';' (expr)? ')' stmt ;
-switch_stmt  : SWITCH '(' expr ')' '{' case_clauses '}' ;
-case_clauses : (case_clause)* ;
-case_clause  : cases case_body ;
-cases        : (CASE primary ':')+ ;
-default_clause : DEFAULT ':' case_body;
-case_body    : (stmt)+ ;
-break_stmt   : BREAK ';' ;
-continue_stmt: CONTINUE ';' ;
-goto_stmt    : GOTO IDENTIFIER ';' ;
-return_stmt  : RETURN ';' 
-             | RETURN expr ';' ;
-
-expr[] returns[res] locals[] :
-        lhs=term '=' rhs=expr
-        {$res = AssignNode($lhs,$rhs)}
-        | lhs=term op=opassign_op rhs=expr
-          {$res = OpAssignNode($lhs,$op,$rhs)}
-        | e=expr10
-          {$res = $e} ;
-
-opassign_op[] returns[res] locals[] :
-          '+=' {$res = '+'}
-        | '-=' {$res = '-'}
-        | '*=' {$res = '*'}
-        | '/=' {$res = '/'}
-        | '%=' {$res = '%'}
-        | '&=' {$res = '&'}
-        | '|=' {$res = '|'}
-        | '^=' {$res = '^'}
-        | '<<=' {$res = '<<'}
-        | '>>=' {$res = '>>'} ;
-
-expr10[] returns[res] locals[] :
-        c=expr9 {$res = $c}
-        ('?' t=expr ':' e=expr10
-                 {$res = CondExprNode($c,$t,$e)})? ;
-
-expr9[] returns[res] locals[] :
-        l=expr8
-        ('||' r=expr8  {$l = LogicalOrNode($l,$r)}
-        )*
-        {$res = $l} ;
-
-expr8[] returns[res] locals[] :
-        l=expr7
-        ('&&' r=expr7  {$l = LogicalAndNode($l,$r)}
-        )*
-        {$res = $l} ;
-
-expr7[] returns[res] locals[] :
-        l=expr6
-        ('>' r=expr6 {$l = BinaryOpNode($l,'>',$r)}
-        |'<' r=expr6 {$l = BinaryOpNode($l,'<',$r)}
-        |'>=' r=expr6 {$l = BinaryOpNode($l,'>=',$r)}
-        |'<=' r=expr6 {$l = BinaryOpNode($l,'<=',$r)}
-        |'==' r=expr6 {$l = BinaryOpNode($l,'==',$r)}
-        |'!=' r=expr6 {$l = BinaryOpNode($l,'!=',$r)}
-        )*
-        {$res = $l} ;
-
-expr6[] returns[res] locals[] :
-        l=expr5 
-        ('|' r=expr5  {$l = BinaryOpNode($l,'|',$r)}
-        )*
-        {$res = $l} ;
-
-expr5[] returns[res] locals[] :
-        l=expr4 
-        ('^' r=expr4  {$l = BinaryOpNode($l,'^',$r)}
-        )*
-        {$res = $l} ;
-
-expr4[] returns[res] locals[] :
-        l=expr3 
-        ('&' r=expr3  {$l = BinaryOpNode($l,'&',$r)}
-        )*
-        {$res = $l} ;
-
-expr3[] returns[res] locals[] :
-        l=expr2 
-        ('>>' r=expr2  {$l = BinaryOpNode($l,'>>',$r)}
-        |'<<' r=expr2  {$l = BinaryOpNode($l,'<<',$r)}
-        )*
-        {$res = $l} ;
-
-expr2[] returns[res] locals[] :
-        l=expr1
-        ('+' r=expr1  {$l = BinaryOpNode($l,'+',$r)}
-        |'-' r=expr1  {$l = BinaryOpNode($l,'-',$r)}
-        )*
-        {$res = $l} ;
-
-expr1[] returns[res] locals[] :
-        l=term 
-        ('*' r=term  {$l = BinaryOpNode($l,'*',$r)}
-        |'/' r=term  {$l = BinaryOpNode($l,'/',$r)}
-        |'%' r=term  {$l = BinaryOpNode($l,'%',$r)}
-        )*
-        {$res = $l} ;
-
-term[] returns[res] locals[] :
-        '(' t=typename ')' n=term {$res = CastNode($t,$n)} |
-        u=unary                   {$res = $u};
-
-unary[] returns[res] locals[] :
-        '++' n=unary   {$res = PrefixOpNode('++',$n)} |
-        '--' n=unary   {$res = PrefixOpNode('--',$n)} |
-        '+'  m=term    {$res = UnaryOpNode('+',$m)}   |
-        '-'  m=term    {$res = UnaryOpNode('-',$m)}   |
-        '!'  m=term    {$res = UnaryOpNode('!',$m)}   |
-        '~'  m=term    {$res = UnaryOpNode('~',$m)}   |
-        '*'  m=term    {$res = DereferenceNode($m)}   |
-        '&'  m=term    {$res = AddressNode($m)}       |
-        SIZEOF '(' t=typename ')' {$res = SizeofTypeNode($t,size_t())} |
-        SIZEOF n=unary {$res = SizeofExprNode($n,size_t())} |
-        p=postfix      {$res = $p} ;
-
-postfix[] returns[res] locals[] :
-        e=primary 
-        ('++'                   {$e = SuffixOpNode('++',$e)}
-        |'--'                   {$e = SuffixOpNode('--',$e)}
-        |'[' idx=expr ']'       {$e = ArefNode($e,$idx)}
-        |'.' memb=name          {$e = MemberNode($e,$memb)}
-        |'->' memb=name         {$e = PtrMemberNode($e,$memb)}
-        |'(' ags=args ')'       {$e = FuncallNode($e,$ags)}   
-        )*
-        {res = $e} ;
-        
-
-args         : (expr (',' expr)*)? ;
-primary[] returns[res] locals[]:
-        t=INTEGER {$res =  integer_node(location($t),$t.text)} |
-        t=CHARACTER {$res =  IntegerLiteralNode(location($t),IntegerTypeRef.char_ref(),character_code($t.text))} |
-        t=STRING {$res =  StringLiteralNode(location($t),PointerTypeRef(IntegerTypeRef.char_ref()),string_value($t.text))} |
-        t=IDENTIFIER {$res =  VariableNode(loc=location($t),name=$t.text)} |
-        '(' e=expr ')' {$res = $e};
-
-compilation_unit[] returns[res] locals[t] :
-        {$t = _input.LA(1)}
-        impdecls=import_stmts decls=top_defs
-        {$decls.add($impdecls); $res=AST(location($t),$decls) } ;

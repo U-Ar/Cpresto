@@ -1,12 +1,12 @@
-from .CflatToken import CflatToken
+from CprestoToken import CprestoToken
 
 class Location:
     def __init__(self,sourcename,token):
         self.source_name = sourcename
-        if isinstance(token,CflatToken):
+        if isinstance(token,CprestoToken):
             self.token = token
         else :
-            self.token = CflatToken(token)
+            self.token = CprestoToken(token)
     
     def source_name(self):
         return self.source_name
