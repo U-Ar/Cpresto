@@ -1,6 +1,7 @@
 from abc import ABCMeta,abstractmethod
+from ..ast.Dumpable import Dumpable
 
-class Entity(metaclass=ABCMeta):
+class Entity(Dumpable,metaclass=ABCMeta):
     def __init__(self,priv,t,name):
         self.name = name
         self.is_private = priv
