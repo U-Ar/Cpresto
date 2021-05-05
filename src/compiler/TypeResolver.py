@@ -1,7 +1,3 @@
-from ..entity.ConstantTable import ConstantTable
-from ..entity.ToplevelScope import ToplevelScope
-from ..entity.LocalScope import LocalScope
-
 from ..ast.AbstractAssignNode import *
 from ..ast.AdressNode import *
 from ..ast.ArefNode import *
@@ -58,81 +54,91 @@ from ..ast.UnaryOpNode import *
 from ..ast.UnionNode import *
 from ..ast.VariableNode import *
 from ..ast.WhileNode import *
+#added:   StructNode, UnionNode, TypedefNode, 
+#         DefinedVariable, UndefinedVariable, Constant,
+#         DefinedFunction, Undefinedfunction
+from ..entity.DefinedVariable import DefinedVariable
+from ..entity.UndefinedVariable import UndefinedVariable
+from ..entity.Constant import Constant
+from ..entity.DefinedFunction import DefinedFunction
+from ..entity.Undefinedfunction import Undefinedfunction
 
 from ..exception.SemanticException import SemanticException
 from Visitor import Visitor
 
-class LocalResolver(Visitor):
-    def __init__(self,h):
-        self.error_handler = h
-        self.scope_stack = []
-        self.constant_table = ConstantTable()
+class TypeResolver(Visitor):
+    def __init__(self,type_table,error_handler):
+        self.type_table = type_table
+        self.error_handler = error_handler
     
-    def resolve(self,n):
-        if isinstance(n,AST):
-            toplevel = ToplevelScope()
-            self.scope_stack.append(toplevel)
-            for decl in n.declarations():
-                toplevel.declare_entity(decl)
-            for ent in n.definitions():
-                toplevel.define_entity(ent)
-            
-            self.resolve_gvar_initializers(n.defined_variables())
-            self.resolve_constant_values(n.constants())
-            self.resolve_functions(n.defined_functions())
-
-            toplevel.check_references(self.error_handler)
-            if self.error_handler.error_occured():
-                raise SemanticException("compile failed.")
-
-            n.set_scope(toplevel)
-            n.set_constant_table(self.constant_table)
-
-        elif isinstance(n,StmtNode) or isinstance(n,ExprNode):
-            n.accept(self)
+    def resolve(self,ast):
+        self.define_types(ast.types())
+        for t in ast.types():
+            t.accept(self)
+        for e in ast.entities():
+            e.accept(self)
     
-    def resolve_gvar_initializers(self,gvars):
-        for gvar in gvars:
-            if gvar.has_initializer():
-                self.resolve(gvar.initializer())
+    def define_types(self,deftypes):
+        for d in deftypes:
+            if self.type_table.is_defined(d.type_ref()):
+                self.error("dumplicated type definition: "+d.type_ref(),d)
+            else:
+                self.type_table.put(d.type_ref(),d.defining_type())
     
-    def resolve_constant_values(self,consts):
-        for c in consts:
-            self.resolve(c.value())
+    def bind_type(self,n):
+        if n.is_resolved():
+            return 
+        n.set_type(self.type_table.get(n.type_ref()))
 
-    def resolve_functions(self,funcs):
-        for fun in funcs:
-            self.push_scope(fun.parameters())
-            self.resolve(fun.body())
-            fun.set_scope(self.pop_scope())
+    def resolve_composite_type(self,d):
+        ct = self.type_table.get(d.type_node().type_ref())
+        if ct == None:
+            raise Exception("cannot intern struct/union: "+d.name())
+        for s in ct.members():
+            self.bind_type(s.type_node())
     
-    def push_scope(self,vars):
-        scope = LocalScope(self.current_scope())
-        for v in vars:
-            if scope.is_defined_locally(v.name()):
-                self.error(v.location(),"duplicated variable in scope: "+v.name())
-            else :
-                scope.define_variable(v)
-        self.scope_stack.append(scope)
+    def resolve_function_header(self,func):
+        self.bind_type(func.type_node())
+        for param in func.parameters():
+            t = self.type_table.get_param_type(param.type_node().type_ref())
+            param.type_node().set_type(t)
+    
+    def error(self,msg,node):
+        self.error_handler.error(msg,node.location())
 
-    def pop_scope(self):
-        return self.scope_stack.pop()
-    
-    def current_scope(self):
-        return self.scope_stack[-1]
-    
-    def error(self,node,message):
-        if isinstance(node,Location):
-            self.error_handler.error(message,node)
-        else:
-            self.error_handler.error(message,node.location())
 
-    #changed: BlockNode, StringLiteralNode, VariableNode
+    #added  : StructNode, UnionNode, TypedefNode, 
+    #         DefinedVariable, UndefinedVariable, Constant,
+    #         DefinedFunction, Undefinedfunction
+    #changed: BlockNode, CastNode, SizeofExprNode, 
+    #         SizeofTypeNode, IntegerLiteralNode, StringLiteralNode
+    
     def visit(self,node):
-        if isinstance(node,BlockNode):
-            self.push_scope(node.variables())
-            super().visit(node)
-            node.set_scope(self.pop_scope())
+        #entities
+        if isinstance(node,DefinedVariable):
+            self.bind_type(node.type_node())
+            if node.has_initializer():
+                self.visit_expr(node.initializer())
+            return None
+        elif isinstance(node,UndefinedVariable):
+            self.bind_type(node.type_node())
+            return None
+        elif isinstance(node,Constant):
+            self.bind_type(node.type_node())
+            self.visit_expr(node.value())
+            return None
+        elif isinstance(node,DefinedFunction):
+            self.resolve_function_header(node)
+            self.visit_stmt(node.body())
+            return None
+        elif isinstance(node,UndefinedFunction):
+            self.resolve_function_header(node)
+            return None
+        #statements
+        elif isinstance(node,BlockNode):
+            for v in node.variables():
+                v.accept(self)
+            self.visit_stmts(node.stmts())
             return None
         elif isinstance(node,ExprStmtNode):
             self.visit_expr(node.expr())
@@ -209,23 +215,25 @@ class LocalResolver(Visitor):
         elif isinstance(node,AddressNode):
             self.visit_expr(node.expr())
         elif isinstance(node,CastNode):
-            self.visit_expr(node.expr())
+            self.bind_type(node.type_node())
+            super().visit(node)
+            return None
         elif isinstance(node,SizeofExprNode):
-            self.visit_expr(node.expr())
+            self.bind_type(node.type_node())
+            super().visit(node)
+            return None
         elif isinstance(node,SizeofTypeNode):
+            self.bind_type(node.operand_type_node())
+            self.bind_type(node.type_node())
+            super().visit(node)
             return None
         elif isinstance(node,VariableNode):
-            try:
-                ent = self.current_scope().get(node.name())
-                ent.refered()
-                node.set_entity(ent)
-            except SemanticException as ex:
-                self.error(node,ex.message)
             return None
         elif isinstance(node,IntegerLiteralNode):
+            self.bind_type(node.type_node())
             return None
         elif isinstance(node,StringLiteralNode):
-            node.set_entry(self.constant_table.intern(node.value()))
+            self.bind_type(node.type_node())
             return None
 
         return None

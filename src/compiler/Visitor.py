@@ -1,6 +1,4 @@
-from ..entity.ConstantTable import ConstantTable
-from ..entity.ToplevelScope import ToplevelScope
-from ..entity.LocalScope import LocalScope
+from ..ast.ASTVisitor import ASTVisitor
 
 from ..ast.AbstractAssignNode import *
 from ..ast.AdressNode import *
@@ -59,81 +57,33 @@ from ..ast.UnionNode import *
 from ..ast.VariableNode import *
 from ..ast.WhileNode import *
 
-from ..exception.SemanticException import SemanticException
-from Visitor import Visitor
+class Visitor(ASTVisitor):
+    def __init__(self):
+        pass
 
-class LocalResolver(Visitor):
-    def __init__(self,h):
-        self.error_handler = h
-        self.scope_stack = []
-        self.constant_table = ConstantTable()
+    def visit_stmt(self,stmt):
+        stmt.accept(self)
     
-    def resolve(self,n):
-        if isinstance(n,AST):
-            toplevel = ToplevelScope()
-            self.scope_stack.append(toplevel)
-            for decl in n.declarations():
-                toplevel.declare_entity(decl)
-            for ent in n.definitions():
-                toplevel.define_entity(ent)
-            
-            self.resolve_gvar_initializers(n.defined_variables())
-            self.resolve_constant_values(n.constants())
-            self.resolve_functions(n.defined_functions())
-
-            toplevel.check_references(self.error_handler)
-            if self.error_handler.error_occured():
-                raise SemanticException("compile failed.")
-
-            n.set_scope(toplevel)
-            n.set_constant_table(self.constant_table)
-
-        elif isinstance(n,StmtNode) or isinstance(n,ExprNode):
-            n.accept(self)
+    def visit_stmts(self,stmts):
+        for s in stmts:
+            self.visit_stmt(s)
     
-    def resolve_gvar_initializers(self,gvars):
-        for gvar in gvars:
-            if gvar.has_initializer():
-                self.resolve(gvar.initializer())
+    def visit_expr(self,expr):
+        expr.accept(self)
     
-    def resolve_constant_values(self,consts):
-        for c in consts:
-            self.resolve(c.value())
+    def visit_exprs(self,exprs):
+        for e in exprs:
+            self.visit_expr(e)
+    
 
-    def resolve_functions(self,funcs):
-        for fun in funcs:
-            self.push_scope(fun.parameters())
-            self.resolve(fun.body())
-            fun.set_scope(self.pop_scope())
     
-    def push_scope(self,vars):
-        scope = LocalScope(self.current_scope())
-        for v in vars:
-            if scope.is_defined_locally(v.name()):
-                self.error(v.location(),"duplicated variable in scope: "+v.name())
-            else :
-                scope.define_variable(v)
-        self.scope_stack.append(scope)
-
-    def pop_scope(self):
-        return self.scope_stack.pop()
-    
-    def current_scope(self):
-        return self.scope_stack[-1]
-    
-    def error(self,node,message):
-        if isinstance(node,Location):
-            self.error_handler.error(message,node)
-        else:
-            self.error_handler.error(message,node.location())
-
-    #changed: BlockNode, StringLiteralNode, VariableNode
     def visit(self,node):
+        #statements
         if isinstance(node,BlockNode):
-            self.push_scope(node.variables())
-            super().visit(node)
-            node.set_scope(self.pop_scope())
-            return None
+            for v in node.variables():
+                if v.has_initializer():
+                    self.visit_expr(v.initializer())
+            self.visit_stmts(node.stmts())
         elif isinstance(node,ExprStmtNode):
             self.visit_expr(node.expr())
         elif isinstance(node,IfNode):
@@ -215,17 +165,10 @@ class LocalResolver(Visitor):
         elif isinstance(node,SizeofTypeNode):
             return None
         elif isinstance(node,VariableNode):
-            try:
-                ent = self.current_scope().get(node.name())
-                ent.refered()
-                node.set_entity(ent)
-            except SemanticException as ex:
-                self.error(node,ex.message)
             return None
         elif isinstance(node,IntegerLiteralNode):
             return None
         elif isinstance(node,StringLiteralNode):
-            node.set_entry(self.constant_table.intern(node.value()))
             return None
 
         return None
