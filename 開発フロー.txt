@@ -1,0 +1,101 @@
+パーサジェネレータの動かし方
+
+alias antlr4='java -Xmx500M -cp "/usr/lib/antlr-4.9-complete.jar:$CLASSPATH" org.antlr.v4.Tool'
+alias grun='java -Xmx500M -cp "/usr/lib/antlr-4.9-complete.jar:$CLASSPATH" org.antlr.v4.gui.TestRig'
+を最初に実行
+
+antlr4 -Dlanguage=Python3 -encoding utf-8 Hello.g4
+でパーサ生成
+
+確認用スクリプト
+import sys
+from antlr4 import *
+from HelloLexer import HelloLexer
+from HelloParser import HelloParser
+def main(argv):
+    input_stream = FileStream(argv[1])
+    lexer = HelloLexer(input_stream)
+    stream = CommonTokenStream(lexer)
+    parser = HelloParser(stream)
+    tree = parser.parse() #トップレベルのトークン 
+    print(tree.toStringTree(recog=parser))
+if __name__ == "__main__":
+    main(sys.argv)
+
+
+typeはconflictを起こすためtypenameに置換
+
+
+文法側で定義した変数名 varは
+Pythonスクリプト内 $var で参照する
+
+
+メソッド名はスネークケース使用
+
+BynaryOpNodeのコンストラクタ、
+typeが最後に、デフォルトNoneに
+
+VariableNodeのコンストラクタ
+順番 DefinedVariable var, Location loc, String nameに
+
+ArrayTypeのコンストラクタ
+順番 Type base_type, long pointer_size, long length(=None)に
+
+ParamTypeRefsのコンストラクタ
+順番 List<TypeRef> param_descs, Location loc=None, boolean vararg=None, に 
+
+ParamSlotsのコンストラクタ
+順番 param_descs, loc, varargに
+ParamTypesのコンストラクタも同じ順に
+
+StructTypeRefのコンストラクタ
+順番 String name, Location loc に
+
+ErrorHandlerの
+error
+warn  がそれぞれ String msg, Location loc に
+
+
+予約語でもクラス変数やメソッドにするのは可能
+
+
+トークンtの文字列$t.text　
+text	String	The text matched for the token; translates to a call to getText. Example: $ID.text.
+type	int	The token type (nonzero positive integer) of the token such as INT; translates to a call to getType. Example: $ID.type.
+line	int	The line number on which the token occurs, counting from 1; translates to a call to getLine. Example: $ID.line.
+pos	int	The character position within the line at which the token’s first character occurs counting from zero; translates to a call togetCharPositionInLine. Example: $ID.pos.
+index	int	The overall index of this token in the token stream, counting from zero; translates to a call to getTokenIndex. Example: $ID.index.
+channel	int	The token’s channel number. The parser tunes to only one channel, effectively ignoring off-channel tokens. The default channel is 0 (Token.DEFAULT_CHANNEL), and the default hidden channel is Token.HIDDEN_CHANNEL. Translates to a call to getChannel. Example: $ID.channel.
+int	int	The integer value of the text held by this token; it assumes that the text is a valid numeric string. Handy for building calculators and so on. Translates to Integer.valueOf(text-of-token). Example: $INT.int.
+
+
+
+hashCode関数は普通に文字列で受け取って辞書でよさそう
+hashCodeは文字列を返す
+
+
+
+Parserをコンストラクタで初期化しているところを、
+コンストラクタの後に独自initを使って初期化するようにする?
+
+
+
+
+ast/CflatToken.py まだ実装せず
+ast/DeclarationVisitor.py
+
+静的メンバにはselfをつけない
+
+class Foo:
+	cmember = 1
+
+Foo.cmember      >>1
+
+
+
+
+
+疑問点IntegerType.pyの比較方法
+いまのところ
+IntegerTypeとStructTypeの比較(equal)をJavaのObjectデフォルトの
+インスタンスが同一化の判定 (is)にしている

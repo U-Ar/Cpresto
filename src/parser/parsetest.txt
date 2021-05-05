@@ -1,0 +1,17 @@
+import stdio;
+
+int euclid(int a, int b)
+{
+	if (b == 0) return a;
+	else return euclid(b, a % b);
+}
+
+int main(void)
+{
+	char s = 'a';
+	int a = 100;
+       int b = 0x500;
+       char* S = "I am a pen.";
+	printf("%d\n", euclid(30,35));
+	return;
+}
