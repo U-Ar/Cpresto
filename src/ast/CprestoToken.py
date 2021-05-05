@@ -1,4 +1,5 @@
 from ..parser.CprestoParser import CprestoParser
+from ..utils.TextUtils import TextUtils
 
 class CprestoToken:
     def __init__(self,token,is_special=None):
@@ -27,3 +28,11 @@ class CprestoToken:
     
     def column(self):
         return self.token.pos
+
+    def image(self):
+        return self.token.text
+
+    def dumped_image(self):
+        return TextUtils.dump_string(self.token.text)
+    
+    def ite
