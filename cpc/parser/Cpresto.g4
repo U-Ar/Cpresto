@@ -4,8 +4,11 @@ options { language=Python3; }
 
 @header
 {
-from ..ast.AbstractAssignNode import *
-from ..ast.AdressNode import *
+import sys
+sys.path.append('../')
+import abst
+"""from ..ast.AbstractAssignNode import *
+from ..ast.AddressNode import *
 from ..ast.ArefNode import *
 from ..ast.AssignNode import *
 from ..ast.AST import *
@@ -113,7 +116,7 @@ from ..exception.JumpError import *
 from ..exception.OptionParseError import *
 from ..exception.SemanticError import *
 from ..exception.SemanticException import *
-from ..exception.SyntaxException import *
+from ..exception.SyntaxException import *"""
 
 }
 
@@ -204,10 +207,10 @@ def character_code(self,image):
 
 def string_value(self,_image):
         pos = 0
-        idx = 0
         buf = ""
         image = _image[1:-1]
-        while (idx = image.index("\\",pos)) >= 0:
+        idx = image.index("\\",pos)
+        while idx >= 0:
                 buf += image[pos:idx]
                 if len(image) >= idx + 4 and image[idx+1].isdigit() and \
                    image[idx+2].isdigit() and image[idx+3].isdigit():
@@ -216,6 +219,7 @@ def string_value(self,_image):
                 else :
                         buf += self.unescape_seq(image[idx+1])
                         pos = idx + 2
+                idx = image.index("\\",pos)
         if pos < len(image):
                 buf += image[pos:len(image)]
         return buf
@@ -306,20 +310,21 @@ funcdecl returns [res] locals [t] :
 {
 $t = FunctionTypeRef(ret,ps.parameters_type_ref())
 $res = UndefinedFunction(TypeNode($t),n,ps)
-} ;
+} ; // funcdecl
+
 
 vardecl returns [res] locals [] :
         EXTERN t=typename n=name ';'
 {
 $res = UndefinedVariable(t,n)
-} ;
+} ; // vardecl
 
 
 name returns [res] locals [] : 
         t=IDENTIFIER 
 {
 $res = $t.text
-};
+}; // name
 
 top_defs returns [res] locals [decls=Declarations()] :
         ( df=defun      
@@ -349,7 +354,8 @@ $decls.add_typedef(td)
         )*
 { 
 $res = $decls 
-} ;
+} ; // top_defs
+
 
 defvars returns [res] locals [defs=list(),initflag=False] :
         priv=storage t=typename n=name ('=' init=expr 
@@ -375,96 +381,351 @@ $initflag=False
         )* ';'
 {
 $res = $defs
-} ;
+} ; //defvars
 
 
 storage returns [res] locals [] :
         (t=STATIC)?
 {
 $res = False if t == None else True
-} ;
+} ; // storage
 
 defun returns [res] locals [t] :
         priv=storage ret=typeref n=name '(' ps=params ')' body=block
 {
 $t = FunctionTypeRef(ret,ps.parameters_type_ref()); 
 $res = DefinedFunction(priv,TypeNode($t),n,ps,body)
-} ;
+} ; // defun
 
-params      : VOID | fixedparams (',' '...')? ;
-fixedparams : param (',' param)* ;
-param       : typename name ;
+
+params returns [res] locals [] : 
+        (t=VOID
+{
+$res = Params(self.location(t),[])
+}
+        | pms=fixedparams (',' '...' 
+{
+pms.accept_varargs()
+}
+        )?
+{
+$res = pms
+}
+        ) ; // params
+
+
+fixedparams returns [res] locals [pms=list()] : 
+        pm1=param 
+{
+$pms.append(pm1)
+}
+        (',' pm=param 
+{
+if pm != None:
+        $pms.append(pm)
+}
+        )* 
+{
+$res = Params(pm1.location(),$pms)
+} ; // fixedparams
+
+
+param returns [res] locals [] : 
+        t=typename n=name 
+{
+$res = Parameter(t,n)
+} ; // param
+
+
 block returns [res] locals [] :
         t='{' v=defvar_list s=stmts '}'
-        {$res = BlockNode(location($t),$v,$s)} ;
+{
+$res = BlockNode(self.location(t),v,s)
+} ; // block
+
 
 defvar_list returns [res] locals [l=list()] :
-        (vars=defvars { $l += $vars })*
-        {$res = $l} ;
+        (vs=defvars 
+{ 
+if vs != None:
+        $l += vs
+}
+        )*
+{
+$res = $l
+} ; // defvar_list
 
-defconst    : CONST typename name '=' expr ';' ;
-defstruct   : STRUCT name member_list ';' ;
-defunion    : UNION  name member_list ';' ;
-member_list : '{' (slot ';')* '}' ;
-slot        : typename name ;
-typedef     : TYPEDEF typeref IDENTIFIER ';' ;
 
-typename    : typeref ;
-typeref     : typeref_base
-              ('[' ']'
-              | '[' INTEGER ']'
-              | '*' 
-              | '(' param_typerefs ')')* ;
-param_typerefs : VOID 
-               | fixedparam_typerefs (',' '...' )? ;
-fixedparam_typerefs :  typeref (',' typeref)* ;
+defconst returns [res] locals [] : 
+        CONST t=typename n=name '=' v=expr ';' 
+{
+$res = Constant(t,n,v)
+} ; // defconst
 
-typeref_base : VOID  
-             | CHAR 
-             | SHORT 
-             | INT 
-             | LONG 
-             | UNSIGNED CHAR
-             | UNSIGNED SHORT
-             | UNSIGNED INT
-             | UNSIGNED LONG
-             | STRUCT IDENTIFIER
-             | UNION IDENTIFIER 
-             | IDENTIFIER ; //typeとして登録されてるもののみ許可する必要
+
+defstruct returns [res] locals [] : 
+        t=STRUCT n=name membs=member_list ';' 
+{
+$res = StructNode(self.location(t),StructTypeRef(n),n,membs)
+} ; // defstruct
+
+
+defunion returns [res] locals [] : 
+        t=UNION n=name membs=member_list ';' 
+{
+$res = UnionNode(self.location(t),UnionTypeRef(n),n,membs)
+} ; // defunion
+
+
+member_list returns [res] locals [membs=list()] : 
+        '{' (s=slot ';'
+{
+if s != None:
+        $membs.append(s)
+}
+        )* '}' 
+{
+$res = $membs
+} ; // member_list
+
+
+slot returns [res] locals [] : 
+        t=typename n=name 
+{
+$res = Slot(t,n)
+} ; // slot
+
+
+typedef returns [res] locals [] : 
+        t=TYPEDEF ref=typeref newname=IDENTIFIER ';' 
+{
+self.add_type($newname.text)
+$res = TypedefNode(self.location(t),ref,$newname.text)
+} ; // typedef
+
+
+
+typename returns [res] locals [] : 
+        ref=typeref 
+{
+$res = TypeNode(ref)
+} ; // typename
+
+
+typeref returns [res] locals [] : 
+        ref=typeref_base
+        ('[' ']'
+{
+ref = ArrayTypeRef(ref)
+}
+        | '[' t=INTEGER ']'
+{
+ref = ArrayTypeRef(ref,self.integer_value($t.text))
+}
+        | '*' 
+{
+ref = PointerTypeRef(ref)
+}
+        | '(' pms=param_typerefs ')'
+{
+ref = FunctionTypeRef(ref,pms)
+}
+        )* 
+{
+$res = ref
+} ; // typeref
+
+
+param_typerefs returns [res] locals [] : 
+        VOID 
+{
+$res = ParamTypeRefs([])
+}
+        | pms=fixedparam_typerefs (',' '...' 
+{
+pms.accept_varargs()
+}
+        )? 
+{
+$res = pms
+} ; // param_typerefs
+
+
+fixedparam_typerefs returns [res] locals [tmp=list()] :  
+        ref=typeref 
+{
+$tmp.append(ref)
+}
+        (',' ref=typeref 
+{
+if ref != None:
+        $tmp.append(ref)
+}
+        )* 
+{
+$res = ParamTypeRefs($tmp)
+} ; // fixedparam_typerefs
+
+
+typeref_base returns [res] locals [] : 
+        (t=VOID  
+{
+$res = VoidTypeRef(self.location(t))
+}
+        | t=CHAR 
+{
+$res = IntegerTypeRef.char_ref(self.location(t))
+}
+        | t=SHORT 
+{
+$res = IntegerTypeRef.short_ref(self.location(t))
+}
+        | t=INT 
+{
+$res = IntegerTypeRef.int_ref(self.location(t))
+}
+        | t=LONG 
+{
+$res = IntegerTypeRef.long_ref(self.location(t))
+}
+        | t=UNSIGNED CHAR
+{
+$res = IntegerTypeRef.uchar_ref(self.location(t))
+}
+        | t=UNSIGNED SHORT
+{
+$res = IntegerTypeRef.ushort_ref(self.location(t))
+}
+        | t=UNSIGNED INT
+{
+$res = IntegerTypeRef.uint_ref(self.location(t))
+}
+        | t=UNSIGNED LONG
+{
+$res = IntegerTypeRef.ulong_ref(self.location(t))
+}
+        | t=STRUCT i=IDENTIFIER
+{
+$res = StructTypeRef($i.text,self.location(t))
+}
+        | t=UNION i=IDENTIFIER 
+{
+$res = UnionTypeRef($i.text,self.location(t))
+}
+        | {self.is_type(self._input.LT(1).text)}? i=IDENTIFIER 
+{
+$res = UserTypeRef($i.text,self.location(i))
+} ) ; // typeref_base
 
 
 stmts returns [res] locals [ss=list()] :
-        (s=stmt {if $s != None:{ $ss.append($s) }})*
-        {$res = $ss} ; 
+        (s=stmt 
+{
+if s != None: 
+        $ss.append(s) 
+}       
+        )*
+{
+$res = $ss
+} ; // stmts
 
-stmt         : ';'
-             | labeled_stmt 
-             | expr ';'
-             | block 
-             | if_stmt
-             | while_stmt
-             | dowhile_stmt
-             | for_stmt
-             | switch_stmt
-             | break_stmt
-             | continue_stmt
-             | goto_stmt
-             | return_stmt ;
-labeled_stmt : IDENTIFIER ':' stmt ;
-if_stmt returns [res] locals [elseflag=False] :
-        t=IF '(' cond=expr ')' thenbody=stmt (ELSE elsebody=stmt {$elseflag=True})?
-        {$res = IfNode(location($t),$cond,$thenbody,None) if not $elseflag else IfNode(location($t),$cond,$thenbody,$elsebody)} ;
+
+stmt returns [res] locals [] : 
+        (';'
+{
+$res = None
+}
+        | n=labeled_stmt 
+{
+$res = n
+}
+        | e=expr ';'
+{
+$res = ExprStmtNode(e.location(),e)
+}
+        | n1=block 
+{
+$res = n1
+}
+        | n2=if_stmt
+{
+$res = n2
+}
+        | n3=while_stmt
+{
+$res = n3
+}
+        | n4=dowhile_stmt
+{
+$res = n4
+}
+        | n5=for_stmt
+{
+$res = n5
+}
+        | n6=switch_stmt
+{
+$res = n6
+}
+        | n7=break_stmt
+{
+$res = n7
+}
+        | n8=continue_stmt
+{
+$res = n8
+}
+        | n9=goto_stmt
+{
+$res = n9
+}
+        | n10=return_stmt
+{
+$res = n10
+}) ; // stmt
+
+
+labeled_stmt returns [res] locals [] : 
+        t=IDENTIFIER ':' n=stmt 
+{
+$res = LabelNode(self.location(t), $t.text, n)
+} ; // labeled_stmt
+
+
+if_stmt returns [res] locals []:
+        t=IF '(' cond=expr ')' thenbody=stmt (ELSE elsebody=stmt)?
+{
+$res = IfNode(self.location(t),cond,thenbody,elsebody)
+} ; // if_stmt
+        
 
 while_stmt returns [res] locals [] :
         t=WHILE '(' cond=expr ')' body=stmt
-        {$res = WhileNode(location($t),$cond,$body)} ;
-dowhile_stmt : DO stmt WHILE '(' expr ')' ';' ;
-for_stmt     : FOR '(' (expr)? ';' (expr)? ';' (expr)? ')' stmt ;
+{
+$res = WhileNode(self.location(t),cond,body)
+} ; // while_stmt
+
+
+dowhile_stmt returns [res] locals [] : 
+        t=DO body=stmt WHILE '(' cond=expr ')' ';' 
+{
+$res = DoWhileNode(self.location(t),body,cond)
+} ; // dowhle_stmt
+
+
+for_stmt returns [res] locals [] : 
+        t=FOR '(' (ini=expr)? ';' (co=expr)? ';' (incr=expr)? ')' body=stmt 
+{
+$res = ForNode(self.location(t),ini,co,incr,body)
+} ; // for_stmt
+
+
 switch_stmt returns [res] locals [] : 
         t=SWITCH '(' cond=expr ')' '{' bodies=case_clauses '}' 
 {
 $res = SwitchNode(self.location(t),cond,bodies)
 } ; // switch_stmt
+
 
 case_clauses returns [res] locals [cls=list()] :
         (n=case_clause
@@ -505,17 +766,17 @@ default_clause returns [res] locals [] :
 $res = CaseNode(body.location(),[],body)
 } ; // default_clause
 
-case_body returns [res] locals [stmts=list()] : 
+case_body returns [res] locals [sts=list()] : 
         (s=stmt 
 {
 if s != None:
-        $stmts.append(s)
+        $sts.append(s)
 }
         )+ 
 {
-if not isinstance($stmts[-1],BreakNode):
+if not isinstance($sts[-1],BreakNode):
         raise ParseException('missing break statement at the last of case clause')
-$res = BlockNode($stmts[0].location(),[],$stmts)
+$res = BlockNode($sts[0].location(),[],$sts)
 } ; // case_body
 
 break_stmt returns [res] locals [] :
@@ -839,18 +1100,18 @@ $res = $tmp
 } ; // postfix
         
 
-args returns [res] locals[args=list()] : 
+args returns [res] locals[ags=list()] : 
         (arg=expr 
 {
-$args.append(arg)
+$ags.append(arg)
 }
         (',' arg=expr
 {
-$args.append(arg)
+$ags.append(arg)
 }
         )*)? 
 {
-$res = $args
+$res = $ags
 } ; // args
 
 primary returns [res] locals []:

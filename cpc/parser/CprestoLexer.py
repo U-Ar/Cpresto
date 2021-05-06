@@ -5,8 +5,11 @@ from typing.io import TextIO
 import sys
 
 
-from ..ast.AbstractAssignNode import *
-from ..ast.AdressNode import *
+import sys
+sys.path.append('../')
+import abst
+"""from ..ast.AbstractAssignNode import *
+from ..ast.AddressNode import *
 from ..ast.ArefNode import *
 from ..ast.AssignNode import *
 from ..ast.AST import *
@@ -114,7 +117,7 @@ from ..exception.JumpError import *
 from ..exception.OptionParseError import *
 from ..exception.SemanticError import *
 from ..exception.SemanticException import *
-from ..exception.SyntaxException import *
+from ..exception.SyntaxException import *"""
 
 
 
@@ -216,9 +219,9 @@ def serializedATN():
         buf.write("\u009b\u01f4\3\2\2\2\u009d\u01fa\3\2\2\2\u009f\u0209\3")
         buf.write("\2\2\2\u00a1\u0215\3\2\2\2\u00a3\u0220\3\2\2\2\u00a5\u00a6")
         buf.write("\7\60\2\2\u00a6\4\3\2\2\2\u00a7\u00a8\7=\2\2\u00a8\6\3")
-        buf.write("\2\2\2\u00a9\u00aa\7?\2\2\u00aa\b\3\2\2\2\u00ab\u00ac")
-        buf.write("\7.\2\2\u00ac\n\3\2\2\2\u00ad\u00ae\7*\2\2\u00ae\f\3\2")
-        buf.write("\2\2\u00af\u00b0\7+\2\2\u00b0\16\3\2\2\2\u00b1\u00b2\7")
+        buf.write("\2\2\2\u00a9\u00aa\7*\2\2\u00aa\b\3\2\2\2\u00ab\u00ac")
+        buf.write("\7+\2\2\u00ac\n\3\2\2\2\u00ad\u00ae\7?\2\2\u00ae\f\3\2")
+        buf.write("\2\2\u00af\u00b0\7.\2\2\u00b0\16\3\2\2\2\u00b1\u00b2\7")
         buf.write("\60\2\2\u00b2\u00b3\7\60\2\2\u00b3\u00b4\7\60\2\2\u00b4")
         buf.write("\20\3\2\2\2\u00b5\u00b6\7}\2\2\u00b6\22\3\2\2\2\u00b7")
         buf.write("\u00b8\7\177\2\2\u00b8\24\3\2\2\2\u00b9\u00ba\7]\2\2\u00ba")
@@ -453,7 +456,7 @@ class CprestoLexer(Lexer):
     modeNames = [ "DEFAULT_MODE" ]
 
     literalNames = [ "<INVALID>",
-            "'.'", "';'", "'='", "','", "'('", "')'", "'...'", "'{'", "'}'", 
+            "'.'", "';'", "'('", "')'", "'='", "','", "'...'", "'{'", "'}'", 
             "'['", "']'", "'*'", "':'", "'+='", "'-='", "'*='", "'/='", 
             "'%='", "'&='", "'|='", "'^='", "'<<='", "'>>='", "'?'", "'||'", 
             "'&&'", "'>'", "'<'", "'>='", "'<='", "'=='", "'!='", "'|'", 

@@ -10,4 +10,5 @@ def main(argv):
     tree = parser.compilation_unit() #トップレベルのトークン 
     print(tree.toStringTree(recog=parser))
 if __name__ == "__main__":
+    sys.path.append("../")
     main(sys.argv)

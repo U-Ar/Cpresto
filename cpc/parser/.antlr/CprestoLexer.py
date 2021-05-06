@@ -1,12 +1,15 @@
-# Generated from c:\codes\Cpresto\src\parser\Cpresto.g4 by ANTLR 4.8
+# Generated from c:\codes\Cpresto\cpc\parser\Cpresto.g4 by ANTLR 4.8
 from antlr4 import *
 from io import StringIO
 from typing.io import TextIO
 import sys
 
 
-from ..ast.AbstractAssignNode import *
-from ..ast.AdressNode import *
+import sys
+sys.path.append('../')
+import abst
+"""from ..ast.AbstractAssignNode import *
+from ..ast.AddressNode import *
 from ..ast.ArefNode import *
 from ..ast.AssignNode import *
 from ..ast.AST import *
@@ -114,7 +117,7 @@ from ..exception.JumpError import *
 from ..exception.OptionParseError import *
 from ..exception.SemanticError import *
 from ..exception.SemanticException import *
-from ..exception.SyntaxException import *
+from ..exception.SyntaxException import *"""
 
 
 
