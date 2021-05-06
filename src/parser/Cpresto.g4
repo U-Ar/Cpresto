@@ -301,12 +301,24 @@ $buf += '.' + $n.text
 $res = $buf
 } ;
 
+funcdecl returns [res] locals [t] :
+        EXTERN ret=typeref n=name '(' ps=params ')' ';'
+{
+$t = FunctionTypeRef(ret,ps.parameters_type_ref())
+$res = UndefinedFunction(TypeNode($t),n,ps)
+} ;
+
+vardecl returns [res] locals [] :
+        EXTERN t=typename n=name ';'
+{
+$res = UndefinedVariable(t,n)
+} ;
 
 
 name returns [res] locals [] : 
         t=IDENTIFIER 
 {
-        $res = $t.text
+$res = $t.text
 };
 
 top_defs returns [res] locals [decls=Declarations()] :
@@ -448,142 +460,420 @@ while_stmt returns [res] locals [] :
         {$res = WhileNode(location($t),$cond,$body)} ;
 dowhile_stmt : DO stmt WHILE '(' expr ')' ';' ;
 for_stmt     : FOR '(' (expr)? ';' (expr)? ';' (expr)? ')' stmt ;
-switch_stmt  : SWITCH '(' expr ')' '{' case_clauses '}' ;
-case_clauses : (case_clause)* ;
-case_clause  : cases case_body ;
-cases        : (CASE primary ':')+ ;
-default_clause : DEFAULT ':' case_body;
-case_body    : (stmt)+ ;
-break_stmt   : BREAK ';' ;
-continue_stmt: CONTINUE ';' ;
-goto_stmt    : GOTO IDENTIFIER ';' ;
-return_stmt  : RETURN ';' 
-             | RETURN expr ';' ;
+switch_stmt returns [res] locals [] : 
+        t=SWITCH '(' cond=expr ')' '{' bodies=case_clauses '}' 
+{
+$res = SwitchNode(self.location(t),cond,bodies)
+} ; // switch_stmt
+
+case_clauses returns [res] locals [cls=list()] :
+        (n=case_clause
+{
+$cls.append(n)
+}
+        )* (d=default_clause
+{
+if d != None:
+        $cls.append(d)
+}
+        ) ? 
+{
+$res = $cls
+} ; // case_clauses
+
+
+case_clause returns [res] locals [] :
+        values=cases body=case_body 
+{
+$res = CaseNode(body.location(),values,body)
+}; // case_clause
+
+
+cases returns [res] locals [values=list()] :
+        (CASE n=primary ':'
+{
+$values.append(n)
+}
+        )+ 
+{
+$res = $values
+} ; // cases
+
+default_clause returns [res] locals [] : 
+        DEFAULT ':' body=case_body
+{
+$res = CaseNode(body.location(),[],body)
+} ; // default_clause
+
+case_body returns [res] locals [stmts=list()] : 
+        (s=stmt 
+{
+if s != None:
+        $stmts.append(s)
+}
+        )+ 
+{
+if not isinstance($stmts[-1],BreakNode):
+        raise ParseException('missing break statement at the last of case clause')
+$res = BlockNode($stmts[0].location(),[],$stmts)
+} ; // case_body
+
+break_stmt returns [res] locals [] :
+        t=BREAK ';' 
+{
+$res = BreakNode(self.location(t))
+} ; // break_stmt
+
+
+continue_stmt returns [res] locals [] :
+        t=CONTINUE ';'
+{
+$res = ContinueNode(self.location(t))
+} ; // continue_stmt
+
+
+goto_stmt returns [res] locals [] :
+        t=GOTO n=IDENTIFIER ';'
+{
+$res = GotoNode(self.location(t),$n.text)
+} ; // goto_stmt
+
+
+return_stmt returns [res] locals [] :
+        t=RETURN ';'
+{
+$res = ReturnNode(self.location(t),None)
+}
+        | t=RETURN exp=expr ';'
+{
+$res = ReturnNode(self.location(t),exp)
+} ; // return_stmt
+
 
 expr returns [res] locals [] :
         lhs=term '=' rhs=expr
-        {$res = AssignNode($lhs,$rhs)}
+{
+$res = AssignNode(lhs,rhs)
+}
         | lhs=term op=opassign_op rhs=expr
-          {$res = OpAssignNode($lhs,$op,$rhs)}
+{
+$res = OpAssignNode(lhs,op,rhs)
+}
         | e=expr10
-          {$res = $e} ;
+{
+$res = e
+} ; // expr
+
 
 opassign_op returns [res] locals [] :
-          '+=' {$res = '+'}
-        | '-=' {$res = '-'}
-        | '*=' {$res = '*'}
-        | '/=' {$res = '/'}
-        | '%=' {$res = '%'}
-        | '&=' {$res = '&'}
-        | '|=' {$res = '|'}
-        | '^=' {$res = '^'}
-        | '<<=' {$res = '<<'}
-        | '>>=' {$res = '>>'} ;
+          '+=' 
+{
+$res = '+'
+}
+        | '-=' 
+{
+$res = '-'
+}
+        | '*=' 
+{
+$res = '*'
+}
+        | '/=' 
+{
+$res = '/'
+}
+        | '%=' 
+{
+$res = '%'
+}
+        | '&=' 
+{
+$res = '&'
+}
+        | '|=' 
+{
+$res = '|'
+}
+        | '^=' 
+{
+$res = '^'
+}
+        | '<<=' 
+{
+$res = '<<'
+}
+        | '>>=' 
+{
+$res = '>>'
+} ; // opassign_op
+
 
 expr10 returns [res] locals [] :
-        c=expr9 {$res = $c}
+        c=expr9 
+{
+$res = c
+}
         ('?' t=expr ':' e=expr10
-                 {$res = CondExprNode($c,$t,$e)})? ;
+{
+if t != None and e != None:
+        $res = CondExprNode(c,t,e)
+}
+        )? ; // expr10
 
 expr9 returns [res] locals [] :
-        l=expr8
-        ('||' r=expr8  {$l = LogicalOrNode($l,$r)}
+        l=expr8 ('||' r=expr8  
+{
+l = LogicalOrNode(l,r)
+}
         )*
-        {$res = $l} ;
+{
+$res = l
+} ; // expr9
 
 expr8 returns [res] locals [] :
-        l=expr7
-        ('&&' r=expr7  {$l = LogicalAndNode($l,$r)}
+        l=expr7 ('&&' r=expr7  
+{
+l = LogicalAndNode(l,r)
+}
         )*
-        {$res = $l} ;
+{
+$res = l
+} ; // expr8
 
 expr7 returns [res] locals [] :
-        l=expr6
-        ('>' r=expr6 {$l = BinaryOpNode($l,'>',$r)}
-        |'<' r=expr6 {$l = BinaryOpNode($l,'<',$r)}
-        |'>=' r=expr6 {$l = BinaryOpNode($l,'>=',$r)}
-        |'<=' r=expr6 {$l = BinaryOpNode($l,'<=',$r)}
-        |'==' r=expr6 {$l = BinaryOpNode($l,'==',$r)}
-        |'!=' r=expr6 {$l = BinaryOpNode($l,'!=',$r)}
+        l=expr6 ('>' r=expr6 
+{
+l = BinaryOpNode(l,'>',r)
+}
+        |'<' r=expr6 
+{
+l = BinaryOpNode(l,'<',r)
+}
+        |'>=' r=expr6 
+{
+l = BinaryOpNode(l,'>=',r)
+}
+        |'<=' r=expr6 
+{
+l = BinaryOpNode(l,'<=',r)
+}
+        |'==' r=expr6 
+{
+l = BinaryOpNode(l,'==',r)
+}
+        |'!=' r=expr6 
+{
+l = BinaryOpNode(l,'!=',r)
+}
         )*
-        {$res = $l} ;
+{
+$res = l
+} ; // expr7
 
 expr6 returns [res] locals [] :
-        l=expr5 
-        ('|' r=expr5  {$l = BinaryOpNode($l,'|',$r)}
+        l=expr5 ('|' r=expr5  
+{
+l = BinaryOpNode(l,'|',r)
+}
         )*
-        {$res = $l} ;
+{
+$res = l
+} ; // expr6
 
 expr5 returns [res] locals [] :
-        l=expr4 
-        ('^' r=expr4  {$l = BinaryOpNode($l,'^',$r)}
+        l=expr4 ('^' r=expr4  
+{
+l = BinaryOpNode(l,'^',r)
+}
         )*
-        {$res = $l} ;
+{
+$res = l
+} ; // expr5
 
 expr4 returns [res] locals [] :
-        l=expr3 
-        ('&' r=expr3  {$l = BinaryOpNode($l,'&',$r)}
+        l=expr3 ('&' r=expr3  
+{
+l = BinaryOpNode(l,'&',r)
+}
         )*
-        {$res = $l} ;
+{
+$res = l
+} ; // expr4
 
 expr3 returns [res] locals [] :
-        l=expr2 
-        ('>>' r=expr2  {$l = BinaryOpNode($l,'>>',$r)}
-        |'<<' r=expr2  {$l = BinaryOpNode($l,'<<',$r)}
+        l=expr2 ('>>' r=expr2  
+{
+l = BinaryOpNode(l,'>>',r)
+}
+        |'<<' r=expr2  
+{
+l = BinaryOpNode(l,'<<',r)
+}
         )*
-        {$res = $l} ;
+{
+$res = l
+} ; // expr3
 
 expr2 returns [res] locals [] :
         l=expr1
-        ('+' r=expr1  {$l = BinaryOpNode($l,'+',$r)}
-        |'-' r=expr1  {$l = BinaryOpNode($l,'-',$r)}
+        ('+' r=expr1  
+{
+l = BinaryOpNode(l,'+',r)
+}
+        |'-' r=expr1  
+{
+l = BinaryOpNode(l,'-',r)
+}
         )*
-        {$res = $l} ;
+{
+$res = l
+} ; // expr2
 
 expr1 returns [res] locals [] :
         l=term 
-        ('*' r=term  {$l = BinaryOpNode($l,'*',$r)}
-        |'/' r=term  {$l = BinaryOpNode($l,'/',$r)}
-        |'%' r=term  {$l = BinaryOpNode($l,'%',$r)}
+        ('*' r=term  
+{
+l = BinaryOpNode(l,'*',r)
+}
+        |'/' r=term  
+{
+l = BinaryOpNode(l,'/',r)
+}
+        |'%' r=term  
+{
+l = BinaryOpNode(l,'%',r)
+}
         )*
-        {$res = $l} ;
+{
+$res = l
+} ; // expr1
 
 term returns [res] locals [] :
-        '(' t=typename ')' n=term {$res = CastNode($t,$n)} |
-        u=unary                   {$res = $u};
+        '(' t=typename ')' n=term 
+{
+$res = CastNode(t,n)
+} 
+        | u=unary                   
+{
+$res = u
+} ; // term
 
 unary returns [res] locals [] :
-        '++' n=unary   {$res = PrefixOpNode('++',$n)} |
-        '--' n=unary   {$res = PrefixOpNode('--',$n)} |
-        '+'  m=term    {$res = UnaryOpNode('+',$m)}   |
-        '-'  m=term    {$res = UnaryOpNode('-',$m)}   |
-        '!'  m=term    {$res = UnaryOpNode('!',$m)}   |
-        '~'  m=term    {$res = UnaryOpNode('~',$m)}   |
-        '*'  m=term    {$res = DereferenceNode($m)}   |
-        '&'  m=term    {$res = AddressNode($m)}       |
-        SIZEOF '(' t=typename ')' {$res = SizeofTypeNode($t,size_t())} |
-        SIZEOF n=unary {$res = SizeofExprNode($n,size_t())} |
-        p=postfix      {$res = $p} ;
+        '++' n=unary   
+{
+$res = PrefixOpNode('++',n)
+}
+        |'--' n=unary   
+{
+$res = PrefixOpNode('--',n)
+}
+        |'+'  m=term    
+{
+$res = UnaryOpNode('+',m)
+}
+        |'-'  m=term    
+{
+$res = UnaryOpNode('-',m)
+}
+        |'!'  m=term    
+{
+$res = UnaryOpNode('!',m)
+}
+        |'~'  m=term    
+{
+$res = UnaryOpNode('~',m)
+}
+        |'*'  m=term    
+{
+$res = DereferenceNode(m)
+}
+        |'&'  m=term    
+{
+$res = AddressNode(m)
+}
+        |SIZEOF '(' t=typename ')' 
+{
+$res = SizeofTypeNode(t,self.size_t())
+} 
+        |SIZEOF n=unary 
+{
+$res = SizeofExprNode(n,self.size_t())
+} 
+        |p=postfix      
+{
+$res = p
+} ; // unary
 
-postfix returns [res] locals [] :
+postfix returns [res] locals [tmp] :
         e=primary 
-        ('++'                   {$e = SuffixOpNode('++',$e)}
-        |'--'                   {$e = SuffixOpNode('--',$e)}
-        |'[' idx=expr ']'       {$e = ArefNode($e,$idx)}
-        |'.' memb=name          {$e = MemberNode($e,$memb)}
-        |'->' memb=name         {$e = PtrMemberNode($e,$memb)}
-        |'(' ags=args ')'       {$e = FuncallNode($e,$ags)}   
+{
+$tmp = e
+}
+        ('++'                   
+{
+$tmp = SuffixOpNode('++',$tmp)
+}
+        |'--'                   
+{
+$tmp = SuffixOpNode('--',$tmp)
+}
+        |'[' idx=expr ']'       
+{
+$tmp = ArefNode($tmp,idx)
+}
+        |'.' memb=name          
+{
+$tmp = MemberNode($tmp,memb)
+}
+        |'->' memb=name         
+{
+$tmp = PtrMemberNode($tmp,memb)
+}
+        |'(' ags=args ')'       
+{
+$tmp = FuncallNode($tmp,ags)
+}   
         )*
-        {res = $e} ;
+{
+$res = $tmp
+} ; // postfix
         
 
-args         : (expr (',' expr)*)? ;
+args returns [res] locals[args=list()] : 
+        (arg=expr 
+{
+$args.append(arg)
+}
+        (',' arg=expr
+{
+$args.append(arg)
+}
+        )*)? 
+{
+$res = $args
+} ; // args
+
 primary returns [res] locals []:
-        t=INTEGER {$res =  integer_node(location($t),$t.text)} |
-        t=CHARACTER {$res =  IntegerLiteralNode(location($t),IntegerTypeRef.char_ref(),character_code($t.text))} |
-        t=STRING {$res =  StringLiteralNode(location($t),PointerTypeRef(IntegerTypeRef.char_ref()),string_value($t.text))} |
-        t=IDENTIFIER {$res =  VariableNode(loc=location($t),name=$t.text)} |
-        '(' e=expr ')' {$res = $e};
+        t=INTEGER 
+{
+$res =  self.integer_node(self.location(t),$t.text)
+} 
+        |t=CHARACTER 
+{
+$res =  IntegerLiteralNode(self.location(t),IntegerTypeRef.char_ref(),self.character_code($t.text))
+} 
+        |t=STRING 
+{
+$res =  StringLiteralNode(self.location(t),PointerTypeRef(IntegerTypeRef.char_ref()),self.string_value($t.text))
+} 
+        |t=IDENTIFIER
+{
+$res =  VariableNode(loc=self.location(t),name=$t.text)
+} 
+        |'(' e=expr ')' 
+{
+$res = e
+} ; // primary
 
 compilation_unit returns [res] locals [t] :
 {
@@ -593,7 +883,7 @@ $t = self._input.LT(1)
 {
 decls.add(impdecls)
 $res=AST(self.location($t),decls) 
-} ;
+} ; // compilation_unit
 
 declaration_file returns [res] locals [decls=Declarations()] :
         impdecls=import_stmts
@@ -627,7 +917,7 @@ $decls.add(tdef)
         )*
 {
 $res = $decls
-} ;
+} ; // declaration_file
 
 
 
