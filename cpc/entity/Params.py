@@ -1,7 +1,6 @@
-from ParamSlots import ParamSlots
-from ..ast.Dumpable import Dumpable
-from ..type.ParamTypeRefs import ParamTypeRefs
-
+from .ParamSlots import ParamSlots
+import abst
+import type
 
 class Params(ParamSlots,Dumpable):
     def __init__(self,loc,param_descs):

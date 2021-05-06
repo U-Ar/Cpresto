@@ -1,7 +1,7 @@
 from abc import ABCMeta,abstractmethod
-from ..ast.Dumpable import Dumpable
+from abst.Dumpable import Dumpable
 
-class Entity(Dumpable,metaclass=ABCMeta):
+class Entity(Dumpable):
     def __init__(self,priv,t,name):
         self.name = name
         self.is_private = priv
@@ -65,11 +65,11 @@ class Entity(Dumpable,metaclass=ABCMeta):
         self.address = mem
     
     def address(self):
-        self.check_address():
+        self.check_address()
         return self.address
     
     def check_address(self):
-        if self.memref == None and self.address = None:
+        if self.memref == None and self.address == None:
             raise Exception("address did not resolved: "+self.name)
     
     def location(self):

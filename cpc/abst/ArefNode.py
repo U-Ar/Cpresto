@@ -1,3 +1,5 @@
+from .LHSNode import LHSNode
+
 class ArefNode(LHSNode):
     def __init__(self,expr,index):
         self.expr = expr

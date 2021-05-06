@@ -1,3 +1,5 @@
+from .StmtNode import StmtNode
+
 class ReturnNode(StmtNode):
     def __init__(self,loc,expr):
         super().__init__(loc)

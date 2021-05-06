@@ -16,7 +16,7 @@ from .Declarations import *
 from .DeclarationVisitor import *
 from .DereferenceNode import *
 from .DoWhileNode import *
-from .Dumpable import *
+from .Dumpable import Dumpable
 from .Dumper import *
 from .ExprNode import *
 from .ExprStmtNode import *

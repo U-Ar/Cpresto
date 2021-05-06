@@ -1,5 +1,5 @@
-from Scope import Scope
-from DefinedVariable import DefinedVariable
+from .Scope import Scope
+from .DefinedVariable import DefinedVariable
 
 class LocalScope(Scope):
     def __init__(self,parent):

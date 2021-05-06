@@ -1,4 +1,4 @@
-from ConstantEntry import ConstantEntry 
+from .ConstantEntry import ConstantEntry 
 class ConstantTable:
     def __init__(self):
         self.table = dict()

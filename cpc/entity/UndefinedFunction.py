@@ -1,4 +1,4 @@
-from Function import Function
+from .Function import Function
 
 class UndefinedFunction(Function):
     def __init__(self,t,name,params):

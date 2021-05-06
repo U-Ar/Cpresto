@@ -1,3 +1,5 @@
+from .ExprNode import ExprNode
+
 class AbstractAssignNode(ExprNode):
     def __init__(self,lhs,rhs):
         super().__init__()

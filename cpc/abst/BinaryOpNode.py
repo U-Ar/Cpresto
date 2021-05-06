@@ -1,3 +1,5 @@
+from .ExprNode import ExprNode
+
 class BinaryOpNode(ExprNode):
     def __init__(self,left,op,right,t=None):
         super().__init__()

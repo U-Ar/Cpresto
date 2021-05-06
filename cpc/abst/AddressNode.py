@@ -1,4 +1,4 @@
-from ..type.Type import *
+from .ExprNode import ExprNode
 
 class AddressNode(ExprNode):
     def __init__(self,expr):

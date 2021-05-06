@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from .ExprNode import ExprNode
 
 class LHSNode(ExprNode):
     def __init__(self):

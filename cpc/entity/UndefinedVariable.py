@@ -1,4 +1,4 @@
-from Variable import Variable
+from .Variable import Variable
 
 class UndefinedVariable(Variable):
     def __init__(self,t,name):

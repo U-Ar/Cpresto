@@ -1,4 +1,4 @@
-from Entity import Entity
+from .Entity import Entity
 
 class Variable(Entity):
     def __init__(self,priv,t,name):

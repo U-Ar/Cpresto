@@ -1,5 +1,5 @@
-from Entity import Entity
-from ..asm.Label import Label
+from .Entity import Entity
+import asm
 
 class Function(Entity):
     def __init__(self,priv,t,name):

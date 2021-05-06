@@ -1,5 +1,5 @@
-from Variable import Variable
-from ..ast.TypeNode import TypeNode
+from .Variable import Variable
+import abst
 
 class DefinedVariable(Variable):
 

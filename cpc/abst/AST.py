@@ -1,9 +1,10 @@
-from ..ir.IR import *
-from .ExprStmtNode import *
-from .ReturnNode import *
+import ir
+from .Node import Node
+from .ExprStmtNode import ExprStmtNode
+from .ReturnNode import ReturnNode
 
 class AST(Node):
-    self.NUM_LEFT_COLUMNS = 24
+    NUM_LEFT_COLUMNS = 24
 
     def __init__(self,source,declarations):
         super().__init__()
@@ -93,7 +94,7 @@ class AST(Node):
     
     def print_pair(self,key,value,s):
         s.write(key)
-        for n in range(self.NUM_LEFT_COLUMNS,0,-1):
+        for n in range(AST.NUM_LEFT_COLUMNS,0,-1):
             s.write(" ")
         s.write(value+"\n")
 

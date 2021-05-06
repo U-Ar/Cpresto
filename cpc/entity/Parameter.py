@@ -1,4 +1,4 @@
-from DefinedVariable import DefinedVariable
+from .DefinedVariable import DefinedVariable
 
 class Parameter(DefinedVariable):
     def __init__(self,t,name):

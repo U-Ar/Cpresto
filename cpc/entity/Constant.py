@@ -1,4 +1,4 @@
-from Entity import Entity
+from .Entity import Entity
 
 class Constant(Entity):
     def __init__(self,t,name,value):

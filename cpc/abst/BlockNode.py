@@ -1,5 +1,4 @@
-from ..entity.DefinedVariable import *
-from ..entity.LocalScope import *
+import entity
 
 class BlockNode(StmtNode):
     def __init__(self,loc,vs,stmts):

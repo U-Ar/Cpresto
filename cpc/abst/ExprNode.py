@@ -1,5 +1,6 @@
-from ..exception import *
 from abc import ABCMeta, abstractmethod
+import exception
+from .Node import Node
 
 class ExprNode(Node):
     def __init__(self):
