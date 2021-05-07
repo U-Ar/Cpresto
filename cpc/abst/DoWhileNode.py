@@ -1,3 +1,5 @@
+from .StmtNode import StmtNode
+
 class DoWhileNode(StmtNode):
     def __init__(self,loc,body,cond):
         super().__init__(loc)

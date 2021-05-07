@@ -1,3 +1,5 @@
+from .StmtNode import StmtNode
+
 class GotoNode(StmtNode):
     def __init__(self,loc,target):
         super().__init__(loc)

@@ -1,5 +1,6 @@
+from abc import abstractmethod
 from .Entity import Entity
-import asm
+from asm.Label import Label
 
 class Function(Entity):
     def __init__(self,priv,t,name):
@@ -38,5 +39,6 @@ class Function(Entity):
         if self.label != None:
             return self.label
         else:
-            return self.label = Label(self.calling_symbol())
+            self.label = Label(self.calling_symbol())
+            return self.label
     

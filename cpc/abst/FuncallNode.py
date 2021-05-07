@@ -1,4 +1,5 @@
-from ..exception.SemanticError import SemanticError
+from .ExprNode import ExprNode
+from exception.SemanticError import SemanticError
 
 class FuncallNode(ExprNode):
     def __init__(self,expr,args):

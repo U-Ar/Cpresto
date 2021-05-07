@@ -1,4 +1,4 @@
-from NamedType import NamedType
+from .NamedType import NamedType
 
 class UserType(NamedType):
     def __init__(self,name,real,loc):

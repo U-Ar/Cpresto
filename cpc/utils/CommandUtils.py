@@ -2,7 +2,7 @@ import sys
 import subprocess
 import io
 from subprocess import PIPE
-from ..exception.IPCException import IPCException
+from exception.IPCException import IPCException
 
 class CommandUtils:
     @staticmethod
@@ -18,8 +18,8 @@ class CommandUtils:
                     +" (status "+str(proc.returncode)+")")
                 raise IPCException("compile error")
         except InterruptedError as ex:
-            error_handler.error("external command interrupted: "\ 
-                + cmd_args[0] + ": " +ex.message)
+            error_handler.error("external command interrupted: "\
+                                + cmd_args[0] + ": " +ex.message)
             raise IPCException("compile error")
         except Exception as ex:
             error_handler.error("IO error? in external command: "\
@@ -37,6 +37,7 @@ class CommandUtils:
 
     @staticmethod
     def pass_through(s):
-        line=""
-        while (line=s.readline()) != "":
+        line=s.readline()
+        while line != "":
             print(line, file=sys.stderr)
+            line = s.readline()

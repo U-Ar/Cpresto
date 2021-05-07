@@ -1,15 +1,15 @@
-from VoidTypeRef import VoidTypeRef
-from VoidType import VoidType
-from IntegerType import IntegerType
-from IntegerTypeRef import IntegerTypeRef
-from UserTypeRef import UserTypeRef
-from PointerType import PointerType
-from PointerTypeRef import PointerTypeRef
-from ArrayType import ArrayType
-from ArrayTypeRef import ArrayTypeRef
-from FunctionType import FunctionType
-from FunctionTypeRef import FunctionTypeRef
-from CompositeType import CompositeType
+from .VoidTypeRef import VoidTypeRef
+from .VoidType import VoidType
+from .IntegerType import IntegerType
+from .IntegerTypeRef import IntegerTypeRef
+from .UserTypeRef import UserTypeRef
+from .PointerType import PointerType
+from .PointerTypeRef import PointerTypeRef
+from .ArrayType import ArrayType
+from .ArrayTypeRef import ArrayTypeRef
+from .FunctionType import FunctionType
+from .FunctionTypeRef import FunctionTypeRef
+from .CompositeType import CompositeType
 
 class TypeTable:
 

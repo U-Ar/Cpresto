@@ -1,7 +1,6 @@
-from abc import ABCMeta, abstractmethod
-from ..ast.Location import Location
+#from abc import ABCMeta, abstractmethod
 
-class TypeRef(metaclass=ABCMeta):
+class TypeRef:#(metaclass=ABCMeta):
     def __init__(self,loc):
         self.location = loc
     

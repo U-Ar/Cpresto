@@ -1,6 +1,6 @@
 from .Type import Type
 from .NamedType import NamedType
-from ..exception.SemanticError import SemanticError
+from exception.SemanticError import SemanticError
 from abc import ABCMeta, abstractmethod
 
 class CompositeType(NamedType):

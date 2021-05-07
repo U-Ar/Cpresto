@@ -1,5 +1,5 @@
 from .CompositeType import CompositeType
-from ..utils.AsmUtils import AsmUtils
+from utils.AsmUtils import AsmUtils
 
 class StructType(CompositeType):
     def __init__(self,name,membs,loc):

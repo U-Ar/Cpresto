@@ -1,3 +1,5 @@
+from .AbstractAssignNode import AbstractAssignNode
+
 class OpAssignNode(AbstractAssignNode):
     def __init__(self,lhs,op,rhs):
         super().__init__(lhs,rhs)

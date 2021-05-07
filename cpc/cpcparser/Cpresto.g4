@@ -2,161 +2,128 @@ grammar Cpresto;
 
 options { language=Python3; }
 
-@header
+@parser::header
 {
 import sys
 sys.path.append('../')
-import abst
-"""from ..ast.AbstractAssignNode import *
-from ..ast.AddressNode import *
-from ..ast.ArefNode import *
-from ..ast.AssignNode import *
-from ..ast.AST import *
-from ..ast.ASTVisitor import *
-from ..ast.BinaryOpNode import *
-from ..ast.BlockNode import *
-from ..ast.BreakNode import *
-from ..ast.CaseNode import *
-from ..ast.CastNode import *
-from ..ast.CflatToken import *
-from ..ast.CompositeTypeDefinition import *
-from ..ast.CondExprNode import *
-from ..ast.ContinueNode import *
-from ..ast.Declarations import *
-from ..ast.DeclarationVisitor import *
-from ..ast.DereferenceNode import *
-from ..ast.DoWhileNode import *
-from ..ast.Dumpable import *
-from ..ast.Dumper import *
-from ..ast.ExprNode import *
-from ..ast.ExprStmtNode import *
-from ..ast.ForNode import *
-from ..ast.FuncallNode import *
-from ..ast.GotoNode import *
-from ..ast.IfNode import *
-from ..ast.IntegerLiteralNode import *
-from ..ast.LabelNode import *
-from ..ast.LHSNode import *
-from ..ast.LiteralNode import *
-from ..ast.Location import *
-from ..ast.LogicalAndNode import *
-from ..ast.LogicalOrNode import *
-from ..ast.MemberNode import *
-from ..ast.Node import *
-from ..ast.OpAssignNode import *
-from ..ast.PrefixOpNode import *
-from ..ast.PtrMemberNode import *
-from ..ast.ReturnNode import *
-from ..ast.SizeofExprNode import *
-from ..ast.SizeofTypeNode import *
-from ..ast.Slot import *
-from ..ast.StmtNode import *
-from ..ast.StringLiteralNode import *
-from ..ast.StructNode import *
-from ..ast.SuffixOpNode import *
-from ..ast.SwitchNode import *
-from ..ast.TypeDefinition import *
-from ..ast.TypedefNode import *
-from ..ast.TypeNode import *
-from ..ast.UnaryArithmeticOpNode import *
-from ..ast.UnaryOpNode import *
-from ..ast.UnionNode import *
-from ..ast.VariableNode import *
-from ..ast.WhileNode import *
+from type.IntegerTypeRef import IntegerTypeRef
+from exception.CompileException import CompileException
 
-from ..entity.Constant import *
-from ..entity.ConstantEntity import *
-from ..entity.ConstantTable import *
-from ..entity.DefinedFunction import *
-from ..entity.DefinedVariable import *
-from ..entity.Entity import *
-from ..entity.EntityVisitor import *
-from ..entity.Function import *
-from ..entity.LocalScope import *
-from ..entity.Parameter import *
-from ..entity.Params import *
-from ..entity.ParamSlots import *
-from ..entity.Scope import *
-from ..entity.ToplevelScope import *
-from ..entity.UndefinedFunction import *
-from ..entity.UndefinedVariable import *
-from ..entity.Variable import *
+from abst.AbstractAssignNode import *
+from abst.AddressNode import *
+from abst.ArefNode import *
+from abst.AssignNode import *
+from abst.AST import *
+#from abst.ASTVisitor import *
+from abst.BinaryOpNode import *
+from abst.BlockNode import *
+from abst.BreakNode import *
+from abst.CaseNode import *
+from abst.CastNode import *
+from abst.CprestoToken import *
+from abst.CompositeTypeDefinition import *
+from abst.CondExprNode import *
+from abst.ContinueNode import *
+from abst.Declarations import *
+#from abst.DeclarationVisitor import *
+from abst.DereferenceNode import *
+from abst.DoWhileNode import *
+from abst.Dumpable import *
+from abst.Dumper import *
+from abst.ExprNode import *
+from abst.ExprStmtNode import *
+from abst.ForNode import *
+from abst.FuncallNode import *
+from abst.GotoNode import *
+from abst.IfNode import *
+from abst.IntegerLiteralNode import *
+from abst.LabelNode import *
+from abst.LHSNode import *
+from abst.LiteralNode import *
+from abst.Location import *
+from abst.LogicalAndNode import *
+from abst.LogicalOrNode import *
+from abst.MemberNode import *
+from abst.Node import *
+from abst.OpAssignNode import *
+from abst.PrefixOpNode import *
+from abst.PtrMemberNode import *
+from abst.ReturnNode import *
+from abst.SizeofExprNode import *
+from abst.SizeofTypeNode import *
+from abst.Slot import *
+from abst.StmtNode import *
+from abst.StringLiteralNode import *
+from abst.StructNode import *
+from abst.SuffixOpNode import *
+from abst.SwitchNode import *
+from abst.TypeDefinition import *
+from abst.TypedefNode import *
+from abst.TypeNode import *
+from abst.UnaryArithmeticOpNode import *
+from abst.UnaryOpNode import *
+from abst.UnionNode import *
+from abst.VariableNode import *
+from abst.WhileNode import *
 
-from ..type.ArrayType import *
-from ..type.ArrayTypeRef import *
-from ..type.CompositeType import *
-from ..type.FunctionType import *
-from ..type.FunctionTypeRef import *
-from ..type.IntegerType import *
-from ..type.IntegerTypeRef import *
-from ..type.NamedType import *
-from ..type.ParamTypeRefs import *
-from ..type.ParamTypes import *
-from ..type.PointerType import *
-from ..type.PointerTypeRef import *
-from ..type.StructType import *
-from ..type.StructTypeRef import *
-from ..type.Type import *
-from ..type.TypeRef import *
-from ..type.TypeTable import *
-from ..type.UnionType import *
-from ..type.UnionTypeRef import *
-from ..type.UserType import *
-from ..type.UserTypeRef import *
-from ..type.VoidType import *
-from ..type.VoidTypeRef import *
+from entity.Constant import *
+from entity.ConstantEntry import *
+from entity.ConstantTable import *
+from entity.DefinedFunction import *
+from entity.DefinedVariable import *
+from entity.Entity import *
+#from entity.EntityVisitor import *
+from entity.Function import *
+from entity.LocalScope import *
+from entity.Parameter import *
+from entity.Params import *
+from entity.ParamSlots import *
+from entity.Scope import *
+from entity.TopLevelScope import *
+from entity.UndefinedFunction import *
+from entity.UndefinedVariable import *
+from entity.Variable import *
 
-from ..asm.Label import Label
-from ..utils.ErrorHandler import ErrorHandler
+from type.ArrayType import *
+from type.ArrayTypeRef import *
+from type.CompositeType import *
+from type.FunctionType import *
+from type.FunctionTypeRef import *
+from type.IntegerType import *
+from type.IntegerTypeRef import *
+from type.NamedType import *
+from type.ParamTypeRefs import *
+from type.ParamTypes import *
+from type.PointerType import *
+from type.PointerTypeRef import *
+from type.StructType import *
+from type.StructTypeRef import *
+from type.Type import *
+from type.TypeRef import *
+from type.TypeTable import *
+from type.UnionType import *
+from type.UnionTypeRef import *
+from type.UserType import *
+from type.UserTypeRef import *
+from type.VoidType import *
+from type.VoidTypeRef import *
 
-from ..exception.CompileException import *
-from ..exception.FileException import *
-from ..exception.IPCException import *
-from ..exception.JumpError import *
-from ..exception.OptionParseError import *
-from ..exception.SemanticError import *
-from ..exception.SemanticException import *
-from ..exception.SyntaxException import *"""
+from asm.Label import Label
+from utils.ErrorHandler import ErrorHandler
+
+from exception.CompileException import *
+from exception.FileException import *
+from exception.IPCException import *
+from exception.JumpError import *
+from exception.OptionParseError import *
+from exception.SemanticError import *
+from exception.SemanticException import *
+from exception.SyntaxException import *
 
 }
 
 @parser::members 
 {
-
-@classmethod
-def parse_file(file,loader,error_handler,debug=None):
-        if debug == None:
-                debug = False
-        return self.new_file_parser(file,loader,error_handler,debug).parse()
-
-@classmethod
-def parse_decl_file(file,loader,error_handler,debug=None):
-        if debug == None:
-                debug = False
-        return self.new_file_parser(file,loader,error_handler,debug).parse_decls()
-
-@classmethod
-def new_file_parser(filename,loader,error_handler,debug):
-        try:
-                input_stream = FileStream(filename)
-                lexer = CprestoLexer(input_stream)
-                stream = CommonTokenStream(lexer)
-                return CprestoParser.parser_init(stream,filename,loader,error_handler,debug)
-        except FileNotFoundError as ex:
-                raise FileException(ex.message)
-        except Exception as ex:
-                raise Exception("UTF-8 is not supported?: "+ex.message)
-
-#__init__ is not overriden
-@classmethod
-def parser_init(s,name,loader,error_handler,debug=None):
-        parser = CprestoParser(s)
-        parser.source_name = name
-        parser.loader = loader
-        parser.error_handler = error_handler
-        parser.known_typedefs = set()
-        return parser
-
 def parse(self):
         try:
                 return self.compilation_unit()
@@ -267,7 +234,8 @@ def unescape_seq(self,c):
                 raise ParseException("unknown escape sequence: \"\\" + c)
 
 def location(self,t):
-        return Location(self.source_name,t)
+        kindname = CprestoParser.symbolicNames[t.type]
+        return Location(self.source_name,t,kindname)
 
 } // @parser::members
 
@@ -278,12 +246,12 @@ import_stmts returns [res] locals [decls,impdecls=Declarations()] :
         (libid=import_stmt
 {
 try:
-        $decls = self.loader.load_library(libid,self.error_handler)
+        $decls = self.loader.load_library(localctx.libid.res,self.error_handler)
         if $decls != None:
                 $impdecls.add($decls)
                 self.add_known_typedefs($decls.typedefs())
 except CompileException as ex:
-        raise ParseException(ex.message)
+        raise RecognitionException(message=ex.message)
 }
         )*
 {
@@ -316,7 +284,7 @@ $res = UndefinedFunction(TypeNode($t),n,ps)
 vardecl returns [res] locals [] :
         EXTERN t=typename n=name ';'
 {
-$res = UndefinedVariable(t,n)
+$res = UndefinedVariable(localctx.t.res,localctx.n.res)
 } ; // vardecl
 
 
@@ -329,27 +297,27 @@ $res = $t.text
 top_defs returns [res] locals [decls=Declarations()] :
         ( df=defun      
 { 
-$decls.add_defun(df) 
+$decls.add_defun(localctx.df.res) 
 }
         | dv=defvars    
 { 
-$decls.add_defvars(dv) 
+$decls.add_defvars(localctx.dv.res) 
 }
         | dc=defconst   
 { 
-$decls.add_constant(dc) 
+$decls.add_constant(localctx.dc.res) 
 }
         | ds=defstruct  
 { 
-$decls.add_defstruct(ds) 
+$decls.add_defstruct(localctx.ds.res) 
 }
         | du=defunion  
 { 
-$decls.add_defunion(du) 
+$decls.add_defunion(localctx.du.res) 
 }
         | td=typedef    
 { 
-$decls.add_typedef(td) 
+$decls.add_typedef(localctx.td.res) 
 }
         )*
 { 
@@ -387,29 +355,29 @@ $res = $defs
 storage returns [res] locals [] :
         (t=STATIC)?
 {
-$res = False if t == None else True
+$res = False if localctx.t == None else True
 } ; // storage
 
 defun returns [res] locals [t] :
         priv=storage ret=typeref n=name '(' ps=params ')' body=block
 {
-$t = FunctionTypeRef(ret,ps.parameters_type_ref()); 
-$res = DefinedFunction(priv,TypeNode($t),n,ps,body)
+$t = FunctionTypeRef(localctx.ret.res,localctx.ps.res.parameters_type_ref()); 
+$res = DefinedFunction(localctx.priv.res,TypeNode($t),localctx.n.res,localctx.ps.res,localctx.body.res)
 } ; // defun
 
 
 params returns [res] locals [] : 
         (t=VOID
 {
-$res = Params(self.location(t),[])
+$res = Params(self.location(localctx.t),[])
 }
         | pms=fixedparams (',' '...' 
 {
-pms.accept_varargs()
+localctx.pms.res.accept_varargs()
 }
         )?
 {
-$res = pms
+$res = localctx.pms.res
 }
         ) ; // params
 
@@ -417,30 +385,30 @@ $res = pms
 fixedparams returns [res] locals [pms=list()] : 
         pm1=param 
 {
-$pms.append(pm1)
+$pms.append(localctx.pm1.res)
 }
         (',' pm=param 
 {
-if pm != None:
-        $pms.append(pm)
+if localctx.pm != None:
+        $pms.append(localctx.pm.res)
 }
         )* 
 {
-$res = Params(pm1.location(),$pms)
+$res = Params(localctx.pm1.res.location(),$pms)
 } ; // fixedparams
 
 
 param returns [res] locals [] : 
         t=typename n=name 
 {
-$res = Parameter(t,n)
+$res = Parameter(localctx.t.res,localctx.n.res)
 } ; // param
 
 
 block returns [res] locals [] :
         t='{' v=defvar_list s=stmts '}'
 {
-$res = BlockNode(self.location(t),v,s)
+$res = BlockNode(self.location(localctx.t),localctx.v.res,localctx.s.res)
 } ; // block
 
 
@@ -508,7 +476,7 @@ $res = TypedefNode(self.location(t),ref,$newname.text)
 typename returns [res] locals [] : 
         ref=typeref 
 {
-$res = TypeNode(ref)
+$res = TypeNode(localctx.ref.res)
 } ; // typename
 
 
@@ -516,23 +484,23 @@ typeref returns [res] locals [] :
         ref=typeref_base
         ('[' ']'
 {
-ref = ArrayTypeRef(ref)
+localctx.ref.res = ArrayTypeRef(localctx.ref.res)
 }
         | '[' t=INTEGER ']'
 {
-ref = ArrayTypeRef(ref,self.integer_value($t.text))
+localctx.ref.res = ArrayTypeRef(localctx.ref.res,self.integer_value($t.text))
 }
         | '*' 
 {
-ref = PointerTypeRef(ref)
+localctx.ref.res = PointerTypeRef(localctx.ref.res)
 }
         | '(' pms=param_typerefs ')'
 {
-ref = FunctionTypeRef(ref,pms)
+localctx.ref.res = FunctionTypeRef(localctx.ref.res,pms)
 }
         )* 
 {
-$res = ref
+$res = localctx.ref.res
 } ; // typeref
 
 
@@ -541,25 +509,25 @@ param_typerefs returns [res] locals [] :
 {
 $res = ParamTypeRefs([])
 }
-        | pms=fixedparam_typerefs (',' '...' 
+        | (pms=fixedparam_typerefs (',' '...' 
 {
-pms.accept_varargs()
+localctx.pms.res.accept_varargs()
 }
         )? 
 {
-$res = pms
-} ; // param_typerefs
+$res = localctx.pms.res
+} ) ; // param_typerefs
 
 
 fixedparam_typerefs returns [res] locals [tmp=list()] :  
         ref=typeref 
 {
-$tmp.append(ref)
+$tmp.append(localctx.ref.res)
 }
         (',' ref=typeref 
 {
-if ref != None:
-        $tmp.append(ref)
+if localctx.ref != None:
+        $tmp.append(localctx.ref.res)
 }
         )* 
 {
@@ -570,59 +538,59 @@ $res = ParamTypeRefs($tmp)
 typeref_base returns [res] locals [] : 
         (t=VOID  
 {
-$res = VoidTypeRef(self.location(t))
+$res = VoidTypeRef(self.location(localctx.t))
 }
         | t=CHAR 
 {
-$res = IntegerTypeRef.char_ref(self.location(t))
+$res = IntegerTypeRef.char_ref(self.location(localctx.t))
 }
         | t=SHORT 
 {
-$res = IntegerTypeRef.short_ref(self.location(t))
+$res = IntegerTypeRef.short_ref(self.location(localctx.t))
 }
         | t=INT 
 {
-$res = IntegerTypeRef.int_ref(self.location(t))
+$res = IntegerTypeRef.int_ref(self.location(localctx.t))
 }
         | t=LONG 
 {
-$res = IntegerTypeRef.long_ref(self.location(t))
+$res = IntegerTypeRef.long_ref(self.location(localctx.t))
 }
         | t=UNSIGNED CHAR
 {
-$res = IntegerTypeRef.uchar_ref(self.location(t))
+$res = IntegerTypeRef.uchar_ref(self.location(localctx.t))
 }
         | t=UNSIGNED SHORT
 {
-$res = IntegerTypeRef.ushort_ref(self.location(t))
+$res = IntegerTypeRef.ushort_ref(self.location(localctx.t))
 }
         | t=UNSIGNED INT
 {
-$res = IntegerTypeRef.uint_ref(self.location(t))
+$res = IntegerTypeRef.uint_ref(self.location(localctx.t))
 }
         | t=UNSIGNED LONG
 {
-$res = IntegerTypeRef.ulong_ref(self.location(t))
+$res = IntegerTypeRef.ulong_ref(self.location(localctx.t))
 }
         | t=STRUCT i=IDENTIFIER
 {
-$res = StructTypeRef($i.text,self.location(t))
+$res = StructTypeRef($i.text,self.location(localctx.t))
 }
         | t=UNION i=IDENTIFIER 
 {
-$res = UnionTypeRef($i.text,self.location(t))
+$res = UnionTypeRef($i.text,self.location(localctx.t))
 }
         | {self.is_type(self._input.LT(1).text)}? i=IDENTIFIER 
 {
-$res = UserTypeRef($i.text,self.location(i))
+$res = UserTypeRef($i.text,self.location(localctx.t))
 } ) ; // typeref_base
 
 
 stmts returns [res] locals [ss=list()] :
         (s=stmt 
 {
-if s != None: 
-        $ss.append(s) 
+if localctx.s != None: 
+        $ss.append(localctx.s.res) 
 }       
         )*
 {
@@ -637,105 +605,105 @@ $res = None
 }
         | n=labeled_stmt 
 {
-$res = n
+$res = localctx.n.res
 }
         | e=expr ';'
 {
-$res = ExprStmtNode(e.location(),e)
+$res = ExprStmtNode(localctx.e.res.location(),localctx.e.res)
 }
         | n1=block 
 {
-$res = n1
+$res = localctx.n1.res
 }
         | n2=if_stmt
 {
-$res = n2
+$res = localctx.n2.res
 }
         | n3=while_stmt
 {
-$res = n3
+$res = localctx.n3.res
 }
         | n4=dowhile_stmt
 {
-$res = n4
+$res = localctx.n4.res
 }
         | n5=for_stmt
 {
-$res = n5
+$res = localctx.n5.res
 }
         | n6=switch_stmt
 {
-$res = n6
+$res = localctx.n6.res
 }
         | n7=break_stmt
 {
-$res = n7
+$res = localctx.n7.res
 }
         | n8=continue_stmt
 {
-$res = n8
+$res = localctx.n8.res
 }
         | n9=goto_stmt
 {
-$res = n9
+$res = localctx.n9.res
 }
         | n10=return_stmt
 {
-$res = n10
+$res = localctx.n10.res
 }) ; // stmt
 
 
 labeled_stmt returns [res] locals [] : 
         t=IDENTIFIER ':' n=stmt 
 {
-$res = LabelNode(self.location(t), $t.text, n)
+$res = LabelNode(self.location(localctx.t), $t.text, localctx.n.res)
 } ; // labeled_stmt
 
 
 if_stmt returns [res] locals []:
         t=IF '(' cond=expr ')' thenbody=stmt (ELSE elsebody=stmt)?
 {
-$res = IfNode(self.location(t),cond,thenbody,elsebody)
+$res = IfNode(self.location(localctx.t),localctx.cond.res,localctx.thenbody.res,localctx.elsebody.res)
 } ; // if_stmt
         
 
 while_stmt returns [res] locals [] :
         t=WHILE '(' cond=expr ')' body=stmt
 {
-$res = WhileNode(self.location(t),cond,body)
+$res = WhileNode(self.location(localctx.t),localctx.cond.res,localctx.body.res)
 } ; // while_stmt
 
 
 dowhile_stmt returns [res] locals [] : 
         t=DO body=stmt WHILE '(' cond=expr ')' ';' 
 {
-$res = DoWhileNode(self.location(t),body,cond)
+$res = DoWhileNode(self.location(localctx.t),localctx.body.res,localctx.cond.res)
 } ; // dowhle_stmt
 
 
 for_stmt returns [res] locals [] : 
         t=FOR '(' (ini=expr)? ';' (co=expr)? ';' (incr=expr)? ')' body=stmt 
 {
-$res = ForNode(self.location(t),ini,co,incr,body)
+$res = ForNode(self.location(localctx.t),localctx.ini.res,localctx.co.res,localctx.incr.res,localctx.body.res)
 } ; // for_stmt
 
 
 switch_stmt returns [res] locals [] : 
         t=SWITCH '(' cond=expr ')' '{' bodies=case_clauses '}' 
 {
-$res = SwitchNode(self.location(t),cond,bodies)
+$res = SwitchNode(self.location(localctx.t),localctx.cond.res,localctx.bodies.res)
 } ; // switch_stmt
 
 
 case_clauses returns [res] locals [cls=list()] :
         (n=case_clause
 {
-$cls.append(n)
+$cls.append(localctx.n.res)
 }
         )* (d=default_clause
 {
-if d != None:
-        $cls.append(d)
+if localctx.d != None:
+        $cls.append(localctx.d.res)
 }
         ) ? 
 {
@@ -746,14 +714,14 @@ $res = $cls
 case_clause returns [res] locals [] :
         values=cases body=case_body 
 {
-$res = CaseNode(body.location(),values,body)
+$res = CaseNode(localctx.body.res.location(),localctx.values.res,localctx.body.res)
 }; // case_clause
 
 
 cases returns [res] locals [values=list()] :
         (CASE n=primary ':'
 {
-$values.append(n)
+$values.append(localctx.n.res)
 }
         )+ 
 {
@@ -763,14 +731,14 @@ $res = $values
 default_clause returns [res] locals [] : 
         DEFAULT ':' body=case_body
 {
-$res = CaseNode(body.location(),[],body)
+$res = CaseNode(localctx.body.res.location(),[],localctx.body.res)
 } ; // default_clause
 
 case_body returns [res] locals [sts=list()] : 
         (s=stmt 
 {
-if s != None:
-        $sts.append(s)
+if localctx.s != None:
+        $sts.append(localctx.s.res)
 }
         )+ 
 {
@@ -782,47 +750,47 @@ $res = BlockNode($sts[0].location(),[],$sts)
 break_stmt returns [res] locals [] :
         t=BREAK ';' 
 {
-$res = BreakNode(self.location(t))
+$res = BreakNode(self.location(localctx.t))
 } ; // break_stmt
 
 
 continue_stmt returns [res] locals [] :
         t=CONTINUE ';'
 {
-$res = ContinueNode(self.location(t))
+$res = ContinueNode(self.location(localctx.t))
 } ; // continue_stmt
 
 
 goto_stmt returns [res] locals [] :
         t=GOTO n=IDENTIFIER ';'
 {
-$res = GotoNode(self.location(t),$n.text)
+$res = GotoNode(self.location(localctx.t),$n.text)
 } ; // goto_stmt
 
 
 return_stmt returns [res] locals [] :
         t=RETURN ';'
 {
-$res = ReturnNode(self.location(t),None)
+$res = ReturnNode(self.location(localctx.t),None)
 }
         | t=RETURN exp=expr ';'
 {
-$res = ReturnNode(self.location(t),exp)
+$res = ReturnNode(self.location(localctx.t),localctx.exp.res)
 } ; // return_stmt
 
 
 expr returns [res] locals [] :
         lhs=term '=' rhs=expr
 {
-$res = AssignNode(lhs,rhs)
+$res = AssignNode(localctx.lhs.res,localctx.rhs.res)
 }
         | lhs=term op=opassign_op rhs=expr
 {
-$res = OpAssignNode(lhs,op,rhs)
+$res = OpAssignNode(localctx.lhs.res,localctx.op.res,localctx.rhs.res)
 }
         | e=expr10
 {
-$res = e
+$res = localctx.e.res
 } ; // expr
 
 
@@ -872,203 +840,203 @@ $res = '>>'
 expr10 returns [res] locals [] :
         c=expr9 
 {
-$res = c
+$res = localctx.c.res
 }
         ('?' t=expr ':' e=expr10
 {
-if t != None and e != None:
-        $res = CondExprNode(c,t,e)
+if localctx.t != None and localctx.e != None:
+        $res = CondExprNode(localctx.c.res,localctx.t.res,localctx.e.res)
 }
         )? ; // expr10
 
 expr9 returns [res] locals [] :
         l=expr8 ('||' r=expr8  
 {
-l = LogicalOrNode(l,r)
+localctx.l.res = LogicalOrNode(localctx.l.res,localctx.r.res)
 }
         )*
 {
-$res = l
+$res = localctx.l.res
 } ; // expr9
 
 expr8 returns [res] locals [] :
         l=expr7 ('&&' r=expr7  
 {
-l = LogicalAndNode(l,r)
+localctx.l.res = LogicalAndNode(localctx.l.res,localctx.r.res)
 }
         )*
 {
-$res = l
+$res = localctx.l.res
 } ; // expr8
 
 expr7 returns [res] locals [] :
         l=expr6 ('>' r=expr6 
 {
-l = BinaryOpNode(l,'>',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'>',localctx.r.res)
 }
         |'<' r=expr6 
 {
-l = BinaryOpNode(l,'<',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'<',localctx.r.res)
 }
         |'>=' r=expr6 
 {
-l = BinaryOpNode(l,'>=',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'>=',localctx.r.res)
 }
         |'<=' r=expr6 
 {
-l = BinaryOpNode(l,'<=',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'<=',localctx.r.res)
 }
         |'==' r=expr6 
 {
-l = BinaryOpNode(l,'==',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'==',localctx.r.res)
 }
         |'!=' r=expr6 
 {
-l = BinaryOpNode(l,'!=',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'!=',localctx.r.res)
 }
         )*
 {
-$res = l
+$res = localctx.l.res
 } ; // expr7
 
 expr6 returns [res] locals [] :
         l=expr5 ('|' r=expr5  
 {
-l = BinaryOpNode(l,'|',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'|',localctx.r.res)
 }
         )*
 {
-$res = l
+$res = localctx.l.res
 } ; // expr6
 
 expr5 returns [res] locals [] :
         l=expr4 ('^' r=expr4  
 {
-l = BinaryOpNode(l,'^',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'^',localctx.r.res)
 }
         )*
 {
-$res = l
+$res = localctx.l.res
 } ; // expr5
 
 expr4 returns [res] locals [] :
         l=expr3 ('&' r=expr3  
 {
-l = BinaryOpNode(l,'&',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'&',localctx.r.res)
 }
         )*
 {
-$res = l
+$res = localctx.l.res
 } ; // expr4
 
 expr3 returns [res] locals [] :
         l=expr2 ('>>' r=expr2  
 {
-l = BinaryOpNode(l,'>>',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'>>',localctx.r.res)
 }
         |'<<' r=expr2  
 {
-l = BinaryOpNode(l,'<<',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'<<',localctx.r.res)
 }
         )*
 {
-$res = l
+$res = localctx.l.res
 } ; // expr3
 
 expr2 returns [res] locals [] :
         l=expr1
         ('+' r=expr1  
 {
-l = BinaryOpNode(l,'+',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'+',localctx.r.res)
 }
         |'-' r=expr1  
 {
-l = BinaryOpNode(l,'-',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'-',localctx.r.res)
 }
         )*
 {
-$res = l
+$res = localctx.l.res
 } ; // expr2
 
 expr1 returns [res] locals [] :
         l=term 
         ('*' r=term  
 {
-l = BinaryOpNode(l,'*',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'*',localctx.r.res)
 }
         |'/' r=term  
 {
-l = BinaryOpNode(l,'/',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'/',localctx.r.res)
 }
         |'%' r=term  
 {
-l = BinaryOpNode(l,'%',r)
+localctx.l.res = BinaryOpNode(localctx.l.res,'%',localctx.r.res)
 }
         )*
 {
-$res = l
+$res = localctx.l.res
 } ; // expr1
 
 term returns [res] locals [] :
         '(' t=typename ')' n=term 
 {
-$res = CastNode(t,n)
+$res = CastNode(localctx.t.res,localctx.n.res)
 } 
         | u=unary                   
 {
-$res = u
+$res = localctx.u.res
 } ; // term
 
 unary returns [res] locals [] :
         '++' n=unary   
 {
-$res = PrefixOpNode('++',n)
+$res = PrefixOpNode('++',localctx.n.res)
 }
         |'--' n=unary   
 {
-$res = PrefixOpNode('--',n)
+$res = PrefixOpNode('--',localctx.n.res)
 }
         |'+'  m=term    
 {
-$res = UnaryOpNode('+',m)
+$res = UnaryOpNode('+',localctx.m.res)
 }
         |'-'  m=term    
 {
-$res = UnaryOpNode('-',m)
+$res = UnaryOpNode('-',localctx.m.res)
 }
         |'!'  m=term    
 {
-$res = UnaryOpNode('!',m)
+$res = UnaryOpNode('!',localctx.m.res)
 }
         |'~'  m=term    
 {
-$res = UnaryOpNode('~',m)
+$res = UnaryOpNode('~',localctx.m.res)
 }
         |'*'  m=term    
 {
-$res = DereferenceNode(m)
+$res = DereferenceNode(localctx.m.res)
 }
         |'&'  m=term    
 {
-$res = AddressNode(m)
+$res = AddressNode(localctx.m.res)
 }
         |SIZEOF '(' t=typename ')' 
 {
-$res = SizeofTypeNode(t,self.size_t())
+$res = SizeofTypeNode(localctx.t.res,self.size_t())
 } 
         |SIZEOF n=unary 
 {
-$res = SizeofExprNode(n,self.size_t())
+$res = SizeofExprNode(localctx.n.res,self.size_t())
 } 
         |p=postfix      
 {
-$res = p
+$res = localctx.p.res
 } ; // unary
 
 postfix returns [res] locals [tmp] :
         e=primary 
 {
-$tmp = e
+$tmp = localctx.e.res
 }
         ('++'                   
 {
@@ -1080,19 +1048,19 @@ $tmp = SuffixOpNode('--',$tmp)
 }
         |'[' idx=expr ']'       
 {
-$tmp = ArefNode($tmp,idx)
+$tmp = ArefNode($tmp,localctx.idx.res)
 }
         |'.' memb=name          
 {
-$tmp = MemberNode($tmp,memb)
+$tmp = MemberNode($tmp,localctx.memb.res)
 }
         |'->' memb=name         
 {
-$tmp = PtrMemberNode($tmp,memb)
+$tmp = PtrMemberNode($tmp,localctx.memb.res)
 }
         |'(' ags=args ')'       
 {
-$tmp = FuncallNode($tmp,ags)
+$tmp = FuncallNode($tmp,localctx.ags.res)
 }   
         )*
 {
@@ -1103,11 +1071,11 @@ $res = $tmp
 args returns [res] locals[ags=list()] : 
         (arg=expr 
 {
-$ags.append(arg)
+$ags.append(localctx.arg.res)
 }
         (',' arg=expr
 {
-$ags.append(arg)
+$ags.append(localctx.arg.res)
 }
         )*)? 
 {
@@ -1117,63 +1085,64 @@ $res = $ags
 primary returns [res] locals []:
         t=INTEGER 
 {
-$res =  self.integer_node(self.location(t),$t.text)
+$res =  self.integer_node(self.location(localctx.t),$t.text)
 } 
         |t=CHARACTER 
 {
-$res =  IntegerLiteralNode(self.location(t),IntegerTypeRef.char_ref(),self.character_code($t.text))
+$res =  IntegerLiteralNode(self.location(localctx.t),IntegerTypeRef.char_ref(),self.character_code($t.text))
 } 
         |t=STRING 
 {
-$res =  StringLiteralNode(self.location(t),PointerTypeRef(IntegerTypeRef.char_ref()),self.string_value($t.text))
+$res =  StringLiteralNode(self.location(localctx.t),PointerTypeRef(IntegerTypeRef.char_ref()),self.string_value($t.text))
 } 
         |t=IDENTIFIER
 {
-$res =  VariableNode(loc=self.location(t),name=$t.text)
+$res =  VariableNode(loc=self.location(localctx.t),name=$t.text)
 } 
         |'(' e=expr ')' 
 {
-$res = e
+$res = localctx.e.res
 } ; // primary
 
 compilation_unit returns [res] locals [t] :
 {
+print(self._input.LT(1).text)
 $t = self._input.LT(1)
 }
         impdecls=import_stmts decls=top_defs
 {
-decls.add(impdecls)
-$res=AST(self.location($t),decls) 
+localctx.decls.res.add(localctx.impdecls.res)
+$res=AST(self.location($t),localctx.decls.res) 
 } ; // compilation_unit
 
 declaration_file returns [res] locals [decls=Declarations()] :
         impdecls=import_stmts
 { 
-$decls.add(impdecls)
+$decls.add(localctx.impdecls.res)
 }
         (fdecl=funcdecl
 { 
-$decls.add(fdecl)
+$decls.add(localctx.fdecl.res)
 }   
         |vdecl=vardecl
 {
-$decls.add(vdecl)
+$decls.add(localctx.vdecl.res)
 }
         |defc=defconst
 {
-$decls.add(defc)
+$decls.add(localctx.defc.res)
 }
         |defs=defstruct
 {
-$decls.add(defs)
+$decls.add(localctx.defs.res)
 }
         |defu=defunion
 {
-$decls.add(defu)
+$decls.add(localctx.defu.res)
 }
         |tdef=typedef
 {
-$decls.add(tdef)
+$decls.add(localctx.tdef.res)
 }
         )*
 {

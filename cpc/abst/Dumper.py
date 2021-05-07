@@ -1,11 +1,11 @@
-from ..type.TypeRef import *
-from ..type.Type import *
-from ..utils.TextUtils import *
+from type.TypeRef import *
+from type.Type import *
+from utils.TextUtils import *
 from .TypeNode import *
 from .Dumpable import *
 
 class Dumper:
-    self.indent_string = "  "
+    indent_string = "  "
 
     def __init__(self,s):
         self.stream = s
@@ -61,5 +61,5 @@ class Dumper:
     def print_indent(self):
         n = self.n_indent
         while n > 0:
-            self.stream.write(self.indent_string)
+            self.stream.write(Dumper.indent_string)
             n -= 1

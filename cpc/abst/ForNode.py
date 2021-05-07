@@ -1,4 +1,5 @@
-from ..ExprStmtNode import ExprStmtNode
+from .ExprStmtNode import ExprStmtNode
+from .StmtNode import StmtNode
 
 class ForNode(StmtNode):
     def __init__(self,loc,init,cond,incr,body):

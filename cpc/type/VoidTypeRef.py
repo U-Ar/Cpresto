@@ -1,4 +1,4 @@
-from TypeRef import TypeRef
+from .TypeRef import TypeRef
 
 class VoidTypeRef(TypeRef):
     def __init__(self,loc=None):

@@ -1,5 +1,5 @@
 from .CompositeTypeDefinition import CompositeTypeDefinition
-from ..type.UnionType import UnionType
+from type.UnionType import UnionType
 
 class UnionNOde(CompositeTypeDefinition):
     def __init__(self,loc,ref,name,membs):

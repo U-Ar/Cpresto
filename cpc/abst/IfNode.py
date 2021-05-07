@@ -1,3 +1,5 @@
+from .StmtNode import StmtNode
+
 class IfNode(StmtNode):
     def __init__(self,loc,c,t,e):
         super().__init__(loc)

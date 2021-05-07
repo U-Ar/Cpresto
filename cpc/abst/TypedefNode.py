@@ -1,5 +1,5 @@
-from ..type.UserTypeRef import UserTypeRef
-from ..type.UserType import UserType
+from type.UserTypeRef import UserTypeRef
+from type.UserType import UserType
 from .TypeNode import TypeNode
 from .TypeDefinition import TypeDefinition
 

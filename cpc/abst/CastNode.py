@@ -1,5 +1,6 @@
-from ..type.Type import Type
+from type.Type import Type
 from .TypeNode import TypeNode
+from .ExprNode import ExprNode
 
 class CastNode(ExprNode):
     def __init__(self,t,expr):

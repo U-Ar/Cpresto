@@ -11,7 +11,7 @@ from .Parameter import *
 from .Params import *
 from .ParamSlots import *
 from .Scope import *
-from .ToplevelScope import *
+from .TopLevelScope import *
 from .UndefinedFunction import *
 from .UndefinedVariable import *
 from .Variable import *

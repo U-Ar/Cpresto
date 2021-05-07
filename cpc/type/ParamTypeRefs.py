@@ -1,4 +1,4 @@
-from ..entity.ParamSlots import ParamSlots
+from entity.ParamSlots import ParamSlots
 
 class ParamTypeRefs(ParamSlots):
     def __init__(self,param_descs,loc=None,vararg=None):

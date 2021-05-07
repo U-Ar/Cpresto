@@ -1,6 +1,7 @@
-from ..exception.SemanticException import SemanticException
-from ..ast.Declarations import Declarations
-from ..exception.FileException import FileException
+from exception.SemanticException import SemanticException
+from abst.Declarations import Declarations
+from exception.FileException import FileException
+from WrappedParser import WrappedParser
 import os
 
 class LibraryLoader:
@@ -25,8 +26,7 @@ class LibraryLoader:
         self.loading_libraries.append(libid)
         if libid in self.loaded_libraries:
             return self.loaded_libraries[libid]
-        decls = self.loaded_libraries[libid]
-        decls = CprestoParser.parse_decl_file(self.search_library(libid),self,handler)
+        decls = WrappedParser.parse_decl_file(self.search_library(libid),self,handler)
         self.loaded_libraries[libid] = decls
         self.loading_libraries.pop()
         return decls

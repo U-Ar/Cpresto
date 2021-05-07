@@ -1,4 +1,5 @@
-import asm
+from asm.Assembly import Assembly
+
 class Label(Assembly):
     def __init__(self,sym=None):
         if sym == None:

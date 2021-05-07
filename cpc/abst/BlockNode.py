@@ -1,4 +1,5 @@
 import entity
+from .StmtNode import StmtNode
 
 class BlockNode(StmtNode):
     def __init__(self,loc,vs,stmts):

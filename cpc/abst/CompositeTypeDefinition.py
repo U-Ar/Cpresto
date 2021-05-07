@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from .TypeDefinition import TypeDefinition
 
 class CompositeTypeDefinition(TypeDefinition):
     def __init__(self,loc,ref,name,membs):

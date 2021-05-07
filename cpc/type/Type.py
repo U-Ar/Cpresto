@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from ..exception.SemanticError import SemanticError
+from exception.SemanticError import SemanticError
 
 class Type(metaclass=ABCMeta) :
     size_unknown = -1

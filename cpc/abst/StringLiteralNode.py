@@ -1,3 +1,5 @@
+from .LiteralNode import LiteralNode
+
 class StringLiteralNode(LiteralNode):
     def __init__(self,loc,ref,value):
         super().__init__(loc,ref)

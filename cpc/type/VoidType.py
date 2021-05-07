@@ -1,4 +1,4 @@
-from Type import Type
+from .Type import Type
 
 class VoidType(Type):
     def __init__(self):

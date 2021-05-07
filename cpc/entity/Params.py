@@ -1,5 +1,5 @@
 from .ParamSlots import ParamSlots
-import abst
+from abst.Dumpable import Dumpable
 import type
 
 class Params(ParamSlots,Dumpable):
@@ -12,7 +12,7 @@ class Params(ParamSlots,Dumpable):
     def parameters_type_ref(self):
         typerefs = []
         for param in self.param_descriptors:
-            typerefs.append(param.type_node().type_ref())
+            typerefs.append(param.type_node.type_ref)
         return ParamTypeRefs(self.location,self.typerefs,self.vararg)
     
     def equals(self,other):

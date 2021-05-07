@@ -15,7 +15,7 @@ class ArrayType(Type):
         return True
     
     def is_allocated_array(self):
-        return (self.length != ArrayType.undefined) and 
+        return (self.length != ArrayType.undefined) and \
                 ((not self.base_type.is_array()) or self.base_type.is_allocated_array())
     
     def is_incomplete_array(self):
@@ -44,7 +44,7 @@ class ArrayType(Type):
     def equals(self,other):
         if not isinstance(other,ArrayType):
             return False
-        return self.base_type.equals(other.base_type) and self.length = other.length
+        return self.base_type.equals(other.base_type) and self.length == other.length
     
     def is_same_type(self,other):
         if (not other.is_pointer()) and (not other.is_array()):

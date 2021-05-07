@@ -1,4 +1,4 @@
-from TypeRef import TypeRef
+from .TypeRef import TypeRef
 
 class UnionTypeRef(TypeRef):
     def __init__(self,name,loc=None):

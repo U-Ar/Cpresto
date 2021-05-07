@@ -1,4 +1,4 @@
-from .AddressNode import *
+"""from .AddressNode import *
 from .ArefNode import *
 from .AssignNode import *
 from .AST import *
@@ -8,12 +8,12 @@ from .BlockNode import *
 from .BreakNode import *
 from .CaseNode import *
 from .CastNode import *
-from .CflatToken import *
+from .CprestoToken import *
 from .CompositeTypeDefinition import *
 from .CondExprNode import *
 from .ContinueNode import *
 from .Declarations import *
-from .DeclarationVisitor import *
+#from .DeclarationVisitor import *
 from .DereferenceNode import *
 from .DoWhileNode import *
 from .Dumpable import Dumpable
@@ -52,4 +52,4 @@ from .UnaryArithmeticOpNode import *
 from .UnaryOpNode import *
 from .UnionNode import *
 from .VariableNode import *
-from .WhileNode import *
+from .WhileNode import *"""

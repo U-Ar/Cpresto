@@ -1,3 +1,5 @@
+from .StmtNode import StmtNode
+
 class LabelNode(StmtNode):
     def __init__(self,loc,name,stmt):
         super().__init__(loc)

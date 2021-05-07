@@ -1,4 +1,5 @@
-from ..asm.Label import Label
+from asm.Label import Label
+from .StmtNode import StmtNode
 
 class CaseNode(StmtNode):
     def __init__(self,loc,values,body):

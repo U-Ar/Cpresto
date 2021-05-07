@@ -1,4 +1,5 @@
-from ..exception.SemanticError import SemanticError
+from .LHSNode import LHSNode
+from exception.SemanticError import SemanticError
 
 class PtrMemberNode(LHSNode):
     def __init__(self,expr,member):

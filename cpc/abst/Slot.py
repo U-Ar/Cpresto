@@ -1,4 +1,5 @@
-from ..type.Type import Type
+from .Node import Node
+from type.Type import Type
 
 class Slot(Node):
     def __init__(self,t,n):

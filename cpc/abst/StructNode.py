@@ -1,4 +1,5 @@
-from ..type.StructType import StructType
+from .CompositeTypeDefinition import CompositeTypeDefinition
+from type.StructType import StructType
 
 class StructNode(CompositeTypeDefinition):
     def __init__(self,loc,ref,name,membs):

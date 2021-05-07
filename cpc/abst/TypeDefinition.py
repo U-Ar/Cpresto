@@ -1,4 +1,5 @@
 from .TypeNode import TypeNode
+from .Node import Node
 from abc import ABCMeta, abstractmethod
 
 class TypeDefinition(Node):

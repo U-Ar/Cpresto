@@ -1,49 +1,49 @@
 from .TypeRef import TypeRef
 
 class IntegerTypeRef(TypeRef):
-    @classmethod
+    @staticmethod
     def char_ref(loc=None):
         if loc == None:
             return IntegerTypeRef("char")
         return IntegerTypeRef("char",loc)
 
-    @classmethod
+    @staticmethod
     def short_ref(loc=None):
         if loc == None:
             return IntegerTypeRef("short")
         return IntegerTypeRef("short",loc)
     
-    @classmethod
+    @staticmethod
     def int_ref(loc=None):
         if loc == None:
             return IntegerTypeRef("int")
         return IntegerTypeRef("int",loc)
     
-    @classmethod
+    @staticmethod
     def long_ref(loc=None):
         if loc == None:
             return IntegerTypeRef("long")
         return IntegerTypeRef("long",loc)
 
-    @classmethod
+    @staticmethod
     def uchar_ref(loc=None):
         if loc == None:
             return IntegerTypeRef("unsigned char")
         return IntegerTypeRef("unsigned char",loc)
 
-    @classmethod
+    @staticmethod
     def ushort_ref(loc=None):
         if loc == None:
             return IntegerTypeRef("unsigned short")
         return IntegerTypeRef("unsigned short",loc)
 
-    @classmethod
+    @staticmethod
     def uint_ref(loc=None):
         if loc == None:
             return IntegerTypeRef("unsigned int")
         return IntegerTypeRef("unsigned int",loc)
     
-    @classmethod
+    @staticmethod
     def ulong_ref(loc=None):
         if loc == None:
             return IntegerTypeRef("unsigned long")

@@ -1,4 +1,5 @@
 from .TypeNode import TypeNode
+from .ExprNode import ExprNode
 
 class LiteralNode(ExprNode):
     def __init__(self,loc,ref):

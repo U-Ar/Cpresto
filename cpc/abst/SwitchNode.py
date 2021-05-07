@@ -1,3 +1,5 @@
+from .StmtNode import StmtNode
+
 class SwitchNode(StmtNode):
     def __init__(self,loc,cond,cases):
         super().__init__(loc)

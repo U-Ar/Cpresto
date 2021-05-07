@@ -1,4 +1,4 @@
-# Generated from c:\codes\Cpresto\cpc\parser\Cpresto.g4 by ANTLR 4.8
+# Generated from c:\codes\Cpresto\cpc\cpcparser\Cpresto.g4 by ANTLR 4.8
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -11,117 +11,119 @@ else:
 
 import sys
 sys.path.append('../')
-import abst
-"""from ..ast.AbstractAssignNode import *
-from ..ast.AddressNode import *
-from ..ast.ArefNode import *
-from ..ast.AssignNode import *
-from ..ast.AST import *
-from ..ast.ASTVisitor import *
-from ..ast.BinaryOpNode import *
-from ..ast.BlockNode import *
-from ..ast.BreakNode import *
-from ..ast.CaseNode import *
-from ..ast.CastNode import *
-from ..ast.CflatToken import *
-from ..ast.CompositeTypeDefinition import *
-from ..ast.CondExprNode import *
-from ..ast.ContinueNode import *
-from ..ast.Declarations import *
-from ..ast.DeclarationVisitor import *
-from ..ast.DereferenceNode import *
-from ..ast.DoWhileNode import *
-from ..ast.Dumpable import *
-from ..ast.Dumper import *
-from ..ast.ExprNode import *
-from ..ast.ExprStmtNode import *
-from ..ast.ForNode import *
-from ..ast.FuncallNode import *
-from ..ast.GotoNode import *
-from ..ast.IfNode import *
-from ..ast.IntegerLiteralNode import *
-from ..ast.LabelNode import *
-from ..ast.LHSNode import *
-from ..ast.LiteralNode import *
-from ..ast.Location import *
-from ..ast.LogicalAndNode import *
-from ..ast.LogicalOrNode import *
-from ..ast.MemberNode import *
-from ..ast.Node import *
-from ..ast.OpAssignNode import *
-from ..ast.PrefixOpNode import *
-from ..ast.PtrMemberNode import *
-from ..ast.ReturnNode import *
-from ..ast.SizeofExprNode import *
-from ..ast.SizeofTypeNode import *
-from ..ast.Slot import *
-from ..ast.StmtNode import *
-from ..ast.StringLiteralNode import *
-from ..ast.StructNode import *
-from ..ast.SuffixOpNode import *
-from ..ast.SwitchNode import *
-from ..ast.TypeDefinition import *
-from ..ast.TypedefNode import *
-from ..ast.TypeNode import *
-from ..ast.UnaryArithmeticOpNode import *
-from ..ast.UnaryOpNode import *
-from ..ast.UnionNode import *
-from ..ast.VariableNode import *
-from ..ast.WhileNode import *
+from type.IntegerTypeRef import IntegerTypeRef
+from exception.CompileException import CompileException
 
-from ..entity.Constant import *
-from ..entity.ConstantEntity import *
-from ..entity.ConstantTable import *
-from ..entity.DefinedFunction import *
-from ..entity.DefinedVariable import *
-from ..entity.Entity import *
-from ..entity.EntityVisitor import *
-from ..entity.Function import *
-from ..entity.LocalScope import *
-from ..entity.Parameter import *
-from ..entity.Params import *
-from ..entity.ParamSlots import *
-from ..entity.Scope import *
-from ..entity.ToplevelScope import *
-from ..entity.UndefinedFunction import *
-from ..entity.UndefinedVariable import *
-from ..entity.Variable import *
+from abst.AbstractAssignNode import *
+from abst.AddressNode import *
+from abst.ArefNode import *
+from abst.AssignNode import *
+from abst.AST import *
+#from abst.ASTVisitor import *
+from abst.BinaryOpNode import *
+from abst.BlockNode import *
+from abst.BreakNode import *
+from abst.CaseNode import *
+from abst.CastNode import *
+from abst.CprestoToken import *
+from abst.CompositeTypeDefinition import *
+from abst.CondExprNode import *
+from abst.ContinueNode import *
+from abst.Declarations import *
+#from abst.DeclarationVisitor import *
+from abst.DereferenceNode import *
+from abst.DoWhileNode import *
+from abst.Dumpable import *
+from abst.Dumper import *
+from abst.ExprNode import *
+from abst.ExprStmtNode import *
+from abst.ForNode import *
+from abst.FuncallNode import *
+from abst.GotoNode import *
+from abst.IfNode import *
+from abst.IntegerLiteralNode import *
+from abst.LabelNode import *
+from abst.LHSNode import *
+from abst.LiteralNode import *
+from abst.Location import *
+from abst.LogicalAndNode import *
+from abst.LogicalOrNode import *
+from abst.MemberNode import *
+from abst.Node import *
+from abst.OpAssignNode import *
+from abst.PrefixOpNode import *
+from abst.PtrMemberNode import *
+from abst.ReturnNode import *
+from abst.SizeofExprNode import *
+from abst.SizeofTypeNode import *
+from abst.Slot import *
+from abst.StmtNode import *
+from abst.StringLiteralNode import *
+from abst.StructNode import *
+from abst.SuffixOpNode import *
+from abst.SwitchNode import *
+from abst.TypeDefinition import *
+from abst.TypedefNode import *
+from abst.TypeNode import *
+from abst.UnaryArithmeticOpNode import *
+from abst.UnaryOpNode import *
+from abst.UnionNode import *
+from abst.VariableNode import *
+from abst.WhileNode import *
 
-from ..type.ArrayType import *
-from ..type.ArrayTypeRef import *
-from ..type.CompositeType import *
-from ..type.FunctionType import *
-from ..type.FunctionTypeRef import *
-from ..type.IntegerType import *
-from ..type.IntegerTypeRef import *
-from ..type.NamedType import *
-from ..type.ParamTypeRefs import *
-from ..type.ParamTypes import *
-from ..type.PointerType import *
-from ..type.PointerTypeRef import *
-from ..type.StructType import *
-from ..type.StructTypeRef import *
-from ..type.Type import *
-from ..type.TypeRef import *
-from ..type.TypeTable import *
-from ..type.UnionType import *
-from ..type.UnionTypeRef import *
-from ..type.UserType import *
-from ..type.UserTypeRef import *
-from ..type.VoidType import *
-from ..type.VoidTypeRef import *
+from entity.Constant import *
+from entity.ConstantEntry import *
+from entity.ConstantTable import *
+from entity.DefinedFunction import *
+from entity.DefinedVariable import *
+from entity.Entity import *
+#from entity.EntityVisitor import *
+from entity.Function import *
+from entity.LocalScope import *
+from entity.Parameter import *
+from entity.Params import *
+from entity.ParamSlots import *
+from entity.Scope import *
+from entity.TopLevelScope import *
+from entity.UndefinedFunction import *
+from entity.UndefinedVariable import *
+from entity.Variable import *
 
-from ..asm.Label import Label
-from ..utils.ErrorHandler import ErrorHandler
+from type.ArrayType import *
+from type.ArrayTypeRef import *
+from type.CompositeType import *
+from type.FunctionType import *
+from type.FunctionTypeRef import *
+from type.IntegerType import *
+from type.IntegerTypeRef import *
+from type.NamedType import *
+from type.ParamTypeRefs import *
+from type.ParamTypes import *
+from type.PointerType import *
+from type.PointerTypeRef import *
+from type.StructType import *
+from type.StructTypeRef import *
+from type.Type import *
+from type.TypeRef import *
+from type.TypeTable import *
+from type.UnionType import *
+from type.UnionTypeRef import *
+from type.UserType import *
+from type.UserTypeRef import *
+from type.VoidType import *
+from type.VoidTypeRef import *
 
-from ..exception.CompileException import *
-from ..exception.FileException import *
-from ..exception.IPCException import *
-from ..exception.JumpError import *
-from ..exception.OptionParseError import *
-from ..exception.SemanticError import *
-from ..exception.SemanticException import *
-from ..exception.SyntaxException import *"""
+from asm.Label import Label
+from utils.ErrorHandler import ErrorHandler
+
+from exception.CompileException import *
+from exception.FileException import *
+from exception.IPCException import *
+from exception.JumpError import *
+from exception.OptionParseError import *
+from exception.SemanticError import *
+from exception.SemanticException import *
+from exception.SyntaxException import *
 
 
 
@@ -775,41 +777,6 @@ class CprestoParser ( Parser ):
 
 
 
-
-    @classmethod
-    def parse_file(file,loader,error_handler,debug=None):
-            if debug == None:
-                    debug = False
-            return self.new_file_parser(file,loader,error_handler,debug).parse()
-
-    @classmethod
-    def parse_decl_file(file,loader,error_handler,debug=None):
-            if debug == None:
-                    debug = False
-            return self.new_file_parser(file,loader,error_handler,debug).parse_decls()
-
-    @classmethod
-    def new_file_parser(filename,loader,error_handler,debug):
-            try:
-                    input_stream = FileStream(filename)
-                    lexer = CprestoLexer(input_stream)
-                    stream = CommonTokenStream(lexer)
-                    return CprestoParser.parser_init(stream,filename,loader,error_handler,debug)
-            except FileNotFoundError as ex:
-                    raise FileException(ex.message)
-            except Exception as ex:
-                    raise Exception("UTF-8 is not supported?: "+ex.message)
-
-    #__init__ is not overriden
-    @classmethod
-    def parser_init(s,name,loader,error_handler,debug=None):
-            parser = CprestoParser(s)
-            parser.source_name = name
-            parser.loader = loader
-            parser.error_handler = error_handler
-            parser.known_typedefs = set()
-            return parser
-
     def parse(self):
             try:
                     return self.compilation_unit()
@@ -920,7 +887,8 @@ class CprestoParser ( Parser ):
                     raise ParseException("unknown escape sequence: \"\\" + c)
 
     def location(self,t):
-            return Location(self.source_name,t)
+            kindname = CprestoParser.symbolicNames[t.type]
+            return Location(self.source_name,t,kindname)
 
 
 
@@ -963,12 +931,12 @@ class CprestoParser ( Parser ):
                     localctx.libid = self.import_stmt()
 
                     try:
-                            localctx.decls = self.loader.load_library(libid,self.error_handler)
+                            localctx.decls = self.loader.load_library(localctx.libid.res,self.error_handler)
                             if localctx.decls != None:
                                     localctx.impdecls.add(localctx.decls)
                                     self.add_known_typedefs(localctx.decls.typedefs())
                     except CompileException as ex:
-                            raise ParseException(ex.message)
+                            raise RecognitionException(message=ex.message)
              
                 self.state = 129
                 self._errHandler.sync(self)
@@ -1160,7 +1128,7 @@ class CprestoParser ( Parser ):
             self.state = 159
             self.match(CprestoParser.T__1)
 
-            localctx.res = UndefinedVariable(t,n)
+            localctx.res = UndefinedVariable(localctx.t.res,localctx.n.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1288,7 +1256,7 @@ class CprestoParser ( Parser ):
                         self.state = 165
                         localctx.df = self.defun()
                          
-                        localctx.decls.add_defun(df) 
+                        localctx.decls.add_defun(localctx.df.res) 
 
                         pass
 
@@ -1296,7 +1264,7 @@ class CprestoParser ( Parser ):
                         self.state = 168
                         localctx.dv = self.defvars()
                          
-                        localctx.decls.add_defvars(dv) 
+                        localctx.decls.add_defvars(localctx.dv.res) 
 
                         pass
 
@@ -1304,7 +1272,7 @@ class CprestoParser ( Parser ):
                         self.state = 171
                         localctx.dc = self.defconst()
                          
-                        localctx.decls.add_constant(dc) 
+                        localctx.decls.add_constant(localctx.dc.res) 
 
                         pass
 
@@ -1312,7 +1280,7 @@ class CprestoParser ( Parser ):
                         self.state = 174
                         localctx.ds = self.defstruct()
                          
-                        localctx.decls.add_defstruct(ds) 
+                        localctx.decls.add_defstruct(localctx.ds.res) 
 
                         pass
 
@@ -1320,7 +1288,7 @@ class CprestoParser ( Parser ):
                         self.state = 177
                         localctx.du = self.defunion()
                          
-                        localctx.decls.add_defunion(du) 
+                        localctx.decls.add_defunion(localctx.du.res) 
 
                         pass
 
@@ -1328,7 +1296,7 @@ class CprestoParser ( Parser ):
                         self.state = 180
                         localctx.td = self.typedef()
                          
-                        localctx.decls.add_typedef(td) 
+                        localctx.decls.add_typedef(localctx.td.res) 
 
                         pass
 
@@ -1497,7 +1465,7 @@ class CprestoParser ( Parser ):
 
 
 
-            localctx.res = False if t == None else True
+            localctx.res = False if localctx.t == None else True
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1568,8 +1536,8 @@ class CprestoParser ( Parser ):
             self.state = 229
             localctx.body = self.block()
 
-            localctx.t =  FunctionTypeRef(ret,ps.parameters_type_ref()) 
-            localctx.res = DefinedFunction(priv,TypeNode(localctx.t),n,ps,body)
+            localctx.t =  FunctionTypeRef(localctx.ret.res,localctx.ps.res.parameters_type_ref()) 
+            localctx.res = DefinedFunction(localctx.priv.res,TypeNode(localctx.t),localctx.n.res,localctx.ps.res,localctx.body.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1616,7 +1584,7 @@ class CprestoParser ( Parser ):
                 self.state = 232
                 localctx.t = self.match(CprestoParser.VOID)
 
-                localctx.res = Params(self.location(t),[])
+                localctx.res = Params(self.location(localctx.t),[])
 
                 pass
 
@@ -1632,12 +1600,12 @@ class CprestoParser ( Parser ):
                     self.state = 236
                     self.match(CprestoParser.T__6)
 
-                    pms.accept_varargs()
+                    localctx.pms.res.accept_varargs()
 
 
 
 
-                localctx.res = pms
+                localctx.res = localctx.pms.res
 
                 pass
 
@@ -1683,7 +1651,7 @@ class CprestoParser ( Parser ):
             self.state = 244
             localctx.pm1 = self.param()
 
-            localctx.pms.append(pm1)
+            localctx.pms.append(localctx.pm1.res)
 
             self.state = 252
             self._errHandler.sync(self)
@@ -1695,15 +1663,15 @@ class CprestoParser ( Parser ):
                     self.state = 247
                     localctx.pm = self.param()
 
-                    if pm != None:
-                            localctx.pms.append(pm)
+                    if localctx.pm != None:
+                            localctx.pms.append(localctx.pm.res)
              
                 self.state = 254
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,10,self._ctx)
 
 
-            localctx.res = Params(pm1.location(),localctx.pms)
+            localctx.res = Params(localctx.pm1.res.location(),localctx.pms)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1748,7 +1716,7 @@ class CprestoParser ( Parser ):
             self.state = 258
             localctx.n = self.name()
 
-            localctx.res = Parameter(t,n)
+            localctx.res = Parameter(localctx.t.res,localctx.n.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1798,7 +1766,7 @@ class CprestoParser ( Parser ):
             self.state = 264
             self.match(CprestoParser.T__8)
 
-            localctx.res = BlockNode(self.location(t),v,s)
+            localctx.res = BlockNode(self.location(localctx.t),localctx.v.res,localctx.s.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -2217,7 +2185,7 @@ class CprestoParser ( Parser ):
             self.state = 320
             localctx.ref = self.typeref()
 
-            localctx.res = TypeNode(ref)
+            localctx.res = TypeNode(localctx.ref.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -2283,7 +2251,7 @@ class CprestoParser ( Parser ):
                     self.state = 325
                     self.match(CprestoParser.T__10)
 
-                    ref = ArrayTypeRef(ref)
+                    localctx.ref.res = ArrayTypeRef(localctx.ref.res)
 
                     pass
 
@@ -2295,7 +2263,7 @@ class CprestoParser ( Parser ):
                     self.state = 329
                     self.match(CprestoParser.T__10)
 
-                    ref = ArrayTypeRef(ref,self.integer_value((None if localctx.t is None else localctx.t.text)))
+                    localctx.ref.res = ArrayTypeRef(localctx.ref.res,self.integer_value((None if localctx.t is None else localctx.t.text)))
 
                     pass
 
@@ -2303,7 +2271,7 @@ class CprestoParser ( Parser ):
                     self.state = 331
                     self.match(CprestoParser.T__11)
 
-                    ref = PointerTypeRef(ref)
+                    localctx.ref.res = PointerTypeRef(localctx.ref.res)
 
                     pass
 
@@ -2315,7 +2283,7 @@ class CprestoParser ( Parser ):
                     self.state = 335
                     self.match(CprestoParser.T__3)
 
-                    ref = FunctionTypeRef(ref,pms)
+                    localctx.ref.res = FunctionTypeRef(localctx.ref.res,pms)
 
                     pass
 
@@ -2325,7 +2293,7 @@ class CprestoParser ( Parser ):
                 _la = self._input.LA(1)
 
 
-            localctx.res = ref
+            localctx.res = localctx.ref.res
 
         except RecognitionException as re:
             localctx.exception = re
@@ -2388,12 +2356,12 @@ class CprestoParser ( Parser ):
                     self.state = 349
                     self.match(CprestoParser.T__6)
 
-                    pms.accept_varargs()
+                    localctx.pms.res.accept_varargs()
 
 
 
 
-                localctx.res = pms
+                localctx.res = localctx.pms.res
 
                 pass
 
@@ -2438,7 +2406,7 @@ class CprestoParser ( Parser ):
             self.state = 357
             localctx.ref = self.typeref()
 
-            localctx.tmp.append(ref)
+            localctx.tmp.append(localctx.ref.res)
 
             self.state = 365
             self._errHandler.sync(self)
@@ -2450,8 +2418,8 @@ class CprestoParser ( Parser ):
                     self.state = 360
                     localctx.ref = self.typeref()
 
-                    if ref != None:
-                            localctx.tmp.append(ref)
+                    if localctx.ref != None:
+                            localctx.tmp.append(localctx.ref.res)
              
                 self.state = 367
                 self._errHandler.sync(self)
@@ -2524,7 +2492,7 @@ class CprestoParser ( Parser ):
                 self.state = 370
                 localctx.t = self.match(CprestoParser.VOID)
 
-                localctx.res = VoidTypeRef(self.location(t))
+                localctx.res = VoidTypeRef(self.location(localctx.t))
 
                 pass
 
@@ -2532,7 +2500,7 @@ class CprestoParser ( Parser ):
                 self.state = 372
                 localctx.t = self.match(CprestoParser.CHAR)
 
-                localctx.res = IntegerTypeRef.char_ref(self.location(t))
+                localctx.res = IntegerTypeRef.char_ref(self.location(localctx.t))
 
                 pass
 
@@ -2540,7 +2508,7 @@ class CprestoParser ( Parser ):
                 self.state = 374
                 localctx.t = self.match(CprestoParser.SHORT)
 
-                localctx.res = IntegerTypeRef.short_ref(self.location(t))
+                localctx.res = IntegerTypeRef.short_ref(self.location(localctx.t))
 
                 pass
 
@@ -2548,7 +2516,7 @@ class CprestoParser ( Parser ):
                 self.state = 376
                 localctx.t = self.match(CprestoParser.INT)
 
-                localctx.res = IntegerTypeRef.int_ref(self.location(t))
+                localctx.res = IntegerTypeRef.int_ref(self.location(localctx.t))
 
                 pass
 
@@ -2556,7 +2524,7 @@ class CprestoParser ( Parser ):
                 self.state = 378
                 localctx.t = self.match(CprestoParser.LONG)
 
-                localctx.res = IntegerTypeRef.long_ref(self.location(t))
+                localctx.res = IntegerTypeRef.long_ref(self.location(localctx.t))
 
                 pass
 
@@ -2566,7 +2534,7 @@ class CprestoParser ( Parser ):
                 self.state = 381
                 self.match(CprestoParser.CHAR)
 
-                localctx.res = IntegerTypeRef.uchar_ref(self.location(t))
+                localctx.res = IntegerTypeRef.uchar_ref(self.location(localctx.t))
 
                 pass
 
@@ -2576,7 +2544,7 @@ class CprestoParser ( Parser ):
                 self.state = 384
                 self.match(CprestoParser.SHORT)
 
-                localctx.res = IntegerTypeRef.ushort_ref(self.location(t))
+                localctx.res = IntegerTypeRef.ushort_ref(self.location(localctx.t))
 
                 pass
 
@@ -2586,7 +2554,7 @@ class CprestoParser ( Parser ):
                 self.state = 387
                 self.match(CprestoParser.INT)
 
-                localctx.res = IntegerTypeRef.uint_ref(self.location(t))
+                localctx.res = IntegerTypeRef.uint_ref(self.location(localctx.t))
 
                 pass
 
@@ -2596,7 +2564,7 @@ class CprestoParser ( Parser ):
                 self.state = 390
                 self.match(CprestoParser.LONG)
 
-                localctx.res = IntegerTypeRef.ulong_ref(self.location(t))
+                localctx.res = IntegerTypeRef.ulong_ref(self.location(localctx.t))
 
                 pass
 
@@ -2606,7 +2574,7 @@ class CprestoParser ( Parser ):
                 self.state = 393
                 localctx.i = self.match(CprestoParser.IDENTIFIER)
 
-                localctx.res = StructTypeRef((None if localctx.i is None else localctx.i.text),self.location(t))
+                localctx.res = StructTypeRef((None if localctx.i is None else localctx.i.text),self.location(localctx.t))
 
                 pass
 
@@ -2616,7 +2584,7 @@ class CprestoParser ( Parser ):
                 self.state = 396
                 localctx.i = self.match(CprestoParser.IDENTIFIER)
 
-                localctx.res = UnionTypeRef((None if localctx.i is None else localctx.i.text),self.location(t))
+                localctx.res = UnionTypeRef((None if localctx.i is None else localctx.i.text),self.location(localctx.t))
 
                 pass
 
@@ -2628,7 +2596,7 @@ class CprestoParser ( Parser ):
                 self.state = 399
                 localctx.i = self.match(CprestoParser.IDENTIFIER)
 
-                localctx.res = UserTypeRef((None if localctx.i is None else localctx.i.text),self.location(i))
+                localctx.res = UserTypeRef((None if localctx.i is None else localctx.i.text),self.location(localctx.t))
 
                 pass
 
@@ -2678,8 +2646,8 @@ class CprestoParser ( Parser ):
                 self.state = 403
                 localctx.s = self.stmt()
 
-                if s != None: 
-                        localctx.ss.append(s) 
+                if localctx.s != None: 
+                        localctx.ss.append(localctx.s.res) 
 
                 self.state = 410
                 self._errHandler.sync(self)
@@ -2791,7 +2759,7 @@ class CprestoParser ( Parser ):
                 self.state = 415
                 localctx.n = self.labeled_stmt()
 
-                localctx.res = n
+                localctx.res = localctx.n.res
 
                 pass
 
@@ -2801,7 +2769,7 @@ class CprestoParser ( Parser ):
                 self.state = 419
                 self.match(CprestoParser.T__1)
 
-                localctx.res = ExprStmtNode(e.location(),e)
+                localctx.res = ExprStmtNode(localctx.e.res.location(),localctx.e.res)
 
                 pass
 
@@ -2809,7 +2777,7 @@ class CprestoParser ( Parser ):
                 self.state = 422
                 localctx.n1 = self.block()
 
-                localctx.res = n1
+                localctx.res = localctx.n1.res
 
                 pass
 
@@ -2817,7 +2785,7 @@ class CprestoParser ( Parser ):
                 self.state = 425
                 localctx.n2 = self.if_stmt()
 
-                localctx.res = n2
+                localctx.res = localctx.n2.res
 
                 pass
 
@@ -2825,7 +2793,7 @@ class CprestoParser ( Parser ):
                 self.state = 428
                 localctx.n3 = self.while_stmt()
 
-                localctx.res = n3
+                localctx.res = localctx.n3.res
 
                 pass
 
@@ -2833,7 +2801,7 @@ class CprestoParser ( Parser ):
                 self.state = 431
                 localctx.n4 = self.dowhile_stmt()
 
-                localctx.res = n4
+                localctx.res = localctx.n4.res
 
                 pass
 
@@ -2841,7 +2809,7 @@ class CprestoParser ( Parser ):
                 self.state = 434
                 localctx.n5 = self.for_stmt()
 
-                localctx.res = n5
+                localctx.res = localctx.n5.res
 
                 pass
 
@@ -2849,7 +2817,7 @@ class CprestoParser ( Parser ):
                 self.state = 437
                 localctx.n6 = self.switch_stmt()
 
-                localctx.res = n6
+                localctx.res = localctx.n6.res
 
                 pass
 
@@ -2857,7 +2825,7 @@ class CprestoParser ( Parser ):
                 self.state = 440
                 localctx.n7 = self.break_stmt()
 
-                localctx.res = n7
+                localctx.res = localctx.n7.res
 
                 pass
 
@@ -2865,7 +2833,7 @@ class CprestoParser ( Parser ):
                 self.state = 443
                 localctx.n8 = self.continue_stmt()
 
-                localctx.res = n8
+                localctx.res = localctx.n8.res
 
                 pass
 
@@ -2873,7 +2841,7 @@ class CprestoParser ( Parser ):
                 self.state = 446
                 localctx.n9 = self.goto_stmt()
 
-                localctx.res = n9
+                localctx.res = localctx.n9.res
 
                 pass
 
@@ -2881,7 +2849,7 @@ class CprestoParser ( Parser ):
                 self.state = 449
                 localctx.n10 = self.return_stmt()
 
-                localctx.res = n10
+                localctx.res = localctx.n10.res
 
                 pass
 
@@ -2930,7 +2898,7 @@ class CprestoParser ( Parser ):
             self.state = 456
             localctx.n = self.stmt()
 
-            localctx.res = LabelNode(self.location(t), (None if localctx.t is None else localctx.t.text), n)
+            localctx.res = LabelNode(self.location(localctx.t), (None if localctx.t is None else localctx.t.text), localctx.n.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3002,7 +2970,7 @@ class CprestoParser ( Parser ):
 
 
 
-            localctx.res = IfNode(self.location(t),cond,thenbody,elsebody)
+            localctx.res = IfNode(self.location(localctx.t),localctx.cond.res,localctx.thenbody.res,localctx.elsebody.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3057,7 +3025,7 @@ class CprestoParser ( Parser ):
             self.state = 474
             localctx.body = self.stmt()
 
-            localctx.res = WhileNode(self.location(t),cond,body)
+            localctx.res = WhileNode(self.location(localctx.t),localctx.cond.res,localctx.body.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3119,7 +3087,7 @@ class CprestoParser ( Parser ):
             self.state = 483
             self.match(CprestoParser.T__1)
 
-            localctx.res = DoWhileNode(self.location(t),body,cond)
+            localctx.res = DoWhileNode(self.location(localctx.t),localctx.body.res,localctx.cond.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3206,7 +3174,7 @@ class CprestoParser ( Parser ):
             self.state = 500
             localctx.body = self.stmt()
 
-            localctx.res = ForNode(self.location(t),ini,co,incr,body)
+            localctx.res = ForNode(self.location(localctx.t),localctx.ini.res,localctx.co.res,localctx.incr.res,localctx.body.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3265,7 +3233,7 @@ class CprestoParser ( Parser ):
             self.state = 509
             self.match(CprestoParser.T__8)
 
-            localctx.res = SwitchNode(self.location(t),cond,bodies)
+            localctx.res = SwitchNode(self.location(localctx.t),localctx.cond.res,localctx.bodies.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3317,7 +3285,7 @@ class CprestoParser ( Parser ):
                 self.state = 512
                 localctx.n = self.case_clause()
 
-                localctx.cls.append(n)
+                localctx.cls.append(localctx.n.res)
 
                 self.state = 519
                 self._errHandler.sync(self)
@@ -3330,8 +3298,8 @@ class CprestoParser ( Parser ):
                 self.state = 520
                 localctx.d = self.default_clause()
 
-                if d != None:
-                        localctx.cls.append(d)
+                if localctx.d != None:
+                        localctx.cls.append(localctx.d.res)
 
 
 
@@ -3381,7 +3349,7 @@ class CprestoParser ( Parser ):
             self.state = 528
             localctx.body = self.case_body()
 
-            localctx.res = CaseNode(body.location(),values,body)
+            localctx.res = CaseNode(localctx.body.res.location(),localctx.values.res,localctx.body.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3438,7 +3406,7 @@ class CprestoParser ( Parser ):
                 self.state = 533
                 self.match(CprestoParser.T__12)
 
-                localctx.values.append(n)
+                localctx.values.append(localctx.n.res)
 
                 self.state = 538 
                 self._errHandler.sync(self)
@@ -3492,7 +3460,7 @@ class CprestoParser ( Parser ):
             self.state = 544
             localctx.body = self.case_body()
 
-            localctx.res = CaseNode(body.location(),[],body)
+            localctx.res = CaseNode(localctx.body.res.location(),[],localctx.body.res)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3539,8 +3507,8 @@ class CprestoParser ( Parser ):
                 self.state = 547
                 localctx.s = self.stmt()
 
-                if s != None:
-                        localctx.sts.append(s)
+                if localctx.s != None:
+                        localctx.sts.append(localctx.s.res)
 
                 self.state = 552 
                 self._errHandler.sync(self)
@@ -3590,7 +3558,7 @@ class CprestoParser ( Parser ):
             self.state = 557
             self.match(CprestoParser.T__1)
 
-            localctx.res = BreakNode(self.location(t))
+            localctx.res = BreakNode(self.location(localctx.t))
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3629,7 +3597,7 @@ class CprestoParser ( Parser ):
             self.state = 561
             self.match(CprestoParser.T__1)
 
-            localctx.res = ContinueNode(self.location(t))
+            localctx.res = ContinueNode(self.location(localctx.t))
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3674,7 +3642,7 @@ class CprestoParser ( Parser ):
             self.state = 566
             self.match(CprestoParser.T__1)
 
-            localctx.res = GotoNode(self.location(t),(None if localctx.n is None else localctx.n.text))
+            localctx.res = GotoNode(self.location(localctx.t),(None if localctx.n is None else localctx.n.text))
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3722,7 +3690,7 @@ class CprestoParser ( Parser ):
                 self.state = 570
                 self.match(CprestoParser.T__1)
 
-                localctx.res = ReturnNode(self.location(t),None)
+                localctx.res = ReturnNode(self.location(localctx.t),None)
 
                 pass
 
@@ -3735,7 +3703,7 @@ class CprestoParser ( Parser ):
                 self.state = 574
                 self.match(CprestoParser.T__1)
 
-                localctx.res = ReturnNode(self.location(t),exp)
+                localctx.res = ReturnNode(self.location(localctx.t),localctx.exp.res)
 
                 pass
 
@@ -3799,7 +3767,7 @@ class CprestoParser ( Parser ):
                 self.state = 581
                 localctx.rhs = self.expr()
 
-                localctx.res = AssignNode(lhs,rhs)
+                localctx.res = AssignNode(localctx.lhs.res,localctx.rhs.res)
 
                 pass
 
@@ -3812,7 +3780,7 @@ class CprestoParser ( Parser ):
                 self.state = 586
                 localctx.rhs = self.expr()
 
-                localctx.res = OpAssignNode(lhs,op,rhs)
+                localctx.res = OpAssignNode(localctx.lhs.res,localctx.op.res,localctx.rhs.res)
 
                 pass
 
@@ -3821,7 +3789,7 @@ class CprestoParser ( Parser ):
                 self.state = 589
                 localctx.e = self.expr10()
 
-                localctx.res = e
+                localctx.res = localctx.e.res
 
                 pass
 
@@ -3987,7 +3955,7 @@ class CprestoParser ( Parser ):
             self.state = 616
             localctx.c = self.expr9()
 
-            localctx.res = c
+            localctx.res = localctx.c.res
 
             self.state = 624
             self._errHandler.sync(self)
@@ -4002,8 +3970,8 @@ class CprestoParser ( Parser ):
                 self.state = 621
                 localctx.e = self.expr10()
 
-                if t != None and e != None:
-                        localctx.res = CondExprNode(c,t,e)
+                if localctx.t != None and localctx.e != None:
+                        localctx.res = CondExprNode(localctx.c.res,localctx.t.res,localctx.e.res)
 
 
 
@@ -4056,14 +4024,14 @@ class CprestoParser ( Parser ):
                 self.state = 628
                 localctx.r = self.expr8()
 
-                l = LogicalOrNode(l,r)
+                localctx.l.res = LogicalOrNode(localctx.l.res,localctx.r.res)
 
                 self.state = 635
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
 
-            localctx.res = l
+            localctx.res = localctx.l.res
 
         except RecognitionException as re:
             localctx.exception = re
@@ -4114,14 +4082,14 @@ class CprestoParser ( Parser ):
                 self.state = 640
                 localctx.r = self.expr7()
 
-                l = LogicalAndNode(l,r)
+                localctx.l.res = LogicalAndNode(localctx.l.res,localctx.r.res)
 
                 self.state = 647
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
 
-            localctx.res = l
+            localctx.res = localctx.l.res
 
         except RecognitionException as re:
             localctx.exception = re
@@ -4176,7 +4144,7 @@ class CprestoParser ( Parser ):
                     self.state = 652
                     localctx.r = self.expr6()
 
-                    l = BinaryOpNode(l,'>',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'>',localctx.r.res)
 
                     pass
                 elif token in [CprestoParser.T__27]:
@@ -4185,7 +4153,7 @@ class CprestoParser ( Parser ):
                     self.state = 656
                     localctx.r = self.expr6()
 
-                    l = BinaryOpNode(l,'<',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'<',localctx.r.res)
 
                     pass
                 elif token in [CprestoParser.T__28]:
@@ -4194,7 +4162,7 @@ class CprestoParser ( Parser ):
                     self.state = 660
                     localctx.r = self.expr6()
 
-                    l = BinaryOpNode(l,'>=',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'>=',localctx.r.res)
 
                     pass
                 elif token in [CprestoParser.T__29]:
@@ -4203,7 +4171,7 @@ class CprestoParser ( Parser ):
                     self.state = 664
                     localctx.r = self.expr6()
 
-                    l = BinaryOpNode(l,'<=',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'<=',localctx.r.res)
 
                     pass
                 elif token in [CprestoParser.T__30]:
@@ -4212,7 +4180,7 @@ class CprestoParser ( Parser ):
                     self.state = 668
                     localctx.r = self.expr6()
 
-                    l = BinaryOpNode(l,'==',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'==',localctx.r.res)
 
                     pass
                 elif token in [CprestoParser.T__31]:
@@ -4221,7 +4189,7 @@ class CprestoParser ( Parser ):
                     self.state = 672
                     localctx.r = self.expr6()
 
-                    l = BinaryOpNode(l,'!=',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'!=',localctx.r.res)
 
                     pass
                 else:
@@ -4232,7 +4200,7 @@ class CprestoParser ( Parser ):
                 _la = self._input.LA(1)
 
 
-            localctx.res = l
+            localctx.res = localctx.l.res
 
         except RecognitionException as re:
             localctx.exception = re
@@ -4283,14 +4251,14 @@ class CprestoParser ( Parser ):
                 self.state = 684
                 localctx.r = self.expr5()
 
-                l = BinaryOpNode(l,'|',r)
+                localctx.l.res = BinaryOpNode(localctx.l.res,'|',localctx.r.res)
 
                 self.state = 691
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
 
-            localctx.res = l
+            localctx.res = localctx.l.res
 
         except RecognitionException as re:
             localctx.exception = re
@@ -4341,14 +4309,14 @@ class CprestoParser ( Parser ):
                 self.state = 696
                 localctx.r = self.expr4()
 
-                l = BinaryOpNode(l,'^',r)
+                localctx.l.res = BinaryOpNode(localctx.l.res,'^',localctx.r.res)
 
                 self.state = 703
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
 
-            localctx.res = l
+            localctx.res = localctx.l.res
 
         except RecognitionException as re:
             localctx.exception = re
@@ -4399,14 +4367,14 @@ class CprestoParser ( Parser ):
                 self.state = 708
                 localctx.r = self.expr3()
 
-                l = BinaryOpNode(l,'&',r)
+                localctx.l.res = BinaryOpNode(localctx.l.res,'&',localctx.r.res)
 
                 self.state = 715
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
 
-            localctx.res = l
+            localctx.res = localctx.l.res
 
         except RecognitionException as re:
             localctx.exception = re
@@ -4461,7 +4429,7 @@ class CprestoParser ( Parser ):
                     self.state = 720
                     localctx.r = self.expr2()
 
-                    l = BinaryOpNode(l,'>>',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'>>',localctx.r.res)
 
                     pass
                 elif token in [CprestoParser.T__36]:
@@ -4470,7 +4438,7 @@ class CprestoParser ( Parser ):
                     self.state = 724
                     localctx.r = self.expr2()
 
-                    l = BinaryOpNode(l,'<<',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'<<',localctx.r.res)
 
                     pass
                 else:
@@ -4481,7 +4449,7 @@ class CprestoParser ( Parser ):
                 _la = self._input.LA(1)
 
 
-            localctx.res = l
+            localctx.res = localctx.l.res
 
         except RecognitionException as re:
             localctx.exception = re
@@ -4536,7 +4504,7 @@ class CprestoParser ( Parser ):
                     self.state = 736
                     localctx.r = self.expr1()
 
-                    l = BinaryOpNode(l,'+',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'+',localctx.r.res)
 
                     pass
                 elif token in [CprestoParser.T__38]:
@@ -4545,7 +4513,7 @@ class CprestoParser ( Parser ):
                     self.state = 740
                     localctx.r = self.expr1()
 
-                    l = BinaryOpNode(l,'-',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'-',localctx.r.res)
 
                     pass
                 else:
@@ -4556,7 +4524,7 @@ class CprestoParser ( Parser ):
                 _la = self._input.LA(1)
 
 
-            localctx.res = l
+            localctx.res = localctx.l.res
 
         except RecognitionException as re:
             localctx.exception = re
@@ -4611,7 +4579,7 @@ class CprestoParser ( Parser ):
                     self.state = 752
                     localctx.r = self.term()
 
-                    l = BinaryOpNode(l,'*',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'*',localctx.r.res)
 
                     pass
                 elif token in [CprestoParser.T__39]:
@@ -4620,7 +4588,7 @@ class CprestoParser ( Parser ):
                     self.state = 756
                     localctx.r = self.term()
 
-                    l = BinaryOpNode(l,'/',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'/',localctx.r.res)
 
                     pass
                 elif token in [CprestoParser.T__40]:
@@ -4629,7 +4597,7 @@ class CprestoParser ( Parser ):
                     self.state = 760
                     localctx.r = self.term()
 
-                    l = BinaryOpNode(l,'%',r)
+                    localctx.l.res = BinaryOpNode(localctx.l.res,'%',localctx.r.res)
 
                     pass
                 else:
@@ -4640,7 +4608,7 @@ class CprestoParser ( Parser ):
                 _la = self._input.LA(1)
 
 
-            localctx.res = l
+            localctx.res = localctx.l.res
 
         except RecognitionException as re:
             localctx.exception = re
@@ -4698,7 +4666,7 @@ class CprestoParser ( Parser ):
                 self.state = 773
                 localctx.n = self.term()
 
-                localctx.res = CastNode(t,n)
+                localctx.res = CastNode(localctx.t.res,localctx.n.res)
 
                 pass
 
@@ -4707,7 +4675,7 @@ class CprestoParser ( Parser ):
                 self.state = 776
                 localctx.u = self.unary()
 
-                localctx.res = u
+                localctx.res = localctx.u.res
 
                 pass
 
@@ -4772,7 +4740,7 @@ class CprestoParser ( Parser ):
                 self.state = 782
                 localctx.n = self.unary()
 
-                localctx.res = PrefixOpNode('++',n)
+                localctx.res = PrefixOpNode('++',localctx.n.res)
 
                 pass
 
@@ -4783,7 +4751,7 @@ class CprestoParser ( Parser ):
                 self.state = 786
                 localctx.n = self.unary()
 
-                localctx.res = PrefixOpNode('--',n)
+                localctx.res = PrefixOpNode('--',localctx.n.res)
 
                 pass
 
@@ -4794,7 +4762,7 @@ class CprestoParser ( Parser ):
                 self.state = 790
                 localctx.m = self.term()
 
-                localctx.res = UnaryOpNode('+',m)
+                localctx.res = UnaryOpNode('+',localctx.m.res)
 
                 pass
 
@@ -4805,7 +4773,7 @@ class CprestoParser ( Parser ):
                 self.state = 794
                 localctx.m = self.term()
 
-                localctx.res = UnaryOpNode('-',m)
+                localctx.res = UnaryOpNode('-',localctx.m.res)
 
                 pass
 
@@ -4816,7 +4784,7 @@ class CprestoParser ( Parser ):
                 self.state = 798
                 localctx.m = self.term()
 
-                localctx.res = UnaryOpNode('!',m)
+                localctx.res = UnaryOpNode('!',localctx.m.res)
 
                 pass
 
@@ -4827,7 +4795,7 @@ class CprestoParser ( Parser ):
                 self.state = 802
                 localctx.m = self.term()
 
-                localctx.res = UnaryOpNode('~',m)
+                localctx.res = UnaryOpNode('~',localctx.m.res)
 
                 pass
 
@@ -4838,7 +4806,7 @@ class CprestoParser ( Parser ):
                 self.state = 806
                 localctx.m = self.term()
 
-                localctx.res = DereferenceNode(m)
+                localctx.res = DereferenceNode(localctx.m.res)
 
                 pass
 
@@ -4849,7 +4817,7 @@ class CprestoParser ( Parser ):
                 self.state = 810
                 localctx.m = self.term()
 
-                localctx.res = AddressNode(m)
+                localctx.res = AddressNode(localctx.m.res)
 
                 pass
 
@@ -4864,7 +4832,7 @@ class CprestoParser ( Parser ):
                 self.state = 816
                 self.match(CprestoParser.T__3)
 
-                localctx.res = SizeofTypeNode(t,self.size_t())
+                localctx.res = SizeofTypeNode(localctx.t.res,self.size_t())
 
                 pass
 
@@ -4875,7 +4843,7 @@ class CprestoParser ( Parser ):
                 self.state = 820
                 localctx.n = self.unary()
 
-                localctx.res = SizeofExprNode(n,self.size_t())
+                localctx.res = SizeofExprNode(localctx.n.res,self.size_t())
 
                 pass
 
@@ -4884,7 +4852,7 @@ class CprestoParser ( Parser ):
                 self.state = 823
                 localctx.p = self.postfix()
 
-                localctx.res = p
+                localctx.res = localctx.p.res
 
                 pass
 
@@ -4951,7 +4919,7 @@ class CprestoParser ( Parser ):
             self.state = 828
             localctx.e = self.primary()
 
-            localctx.tmp = e
+            localctx.tmp = localctx.e.res
 
             self.state = 854
             self._errHandler.sync(self)
@@ -4982,7 +4950,7 @@ class CprestoParser ( Parser ):
                     self.state = 836
                     self.match(CprestoParser.T__10)
 
-                    localctx.tmp = ArefNode(localctx.tmp,idx)
+                    localctx.tmp = ArefNode(localctx.tmp,localctx.idx.res)
 
                     pass
                 elif token in [CprestoParser.T__0]:
@@ -4991,7 +4959,7 @@ class CprestoParser ( Parser ):
                     self.state = 840
                     localctx.memb = self.name()
 
-                    localctx.tmp = MemberNode(localctx.tmp,memb)
+                    localctx.tmp = MemberNode(localctx.tmp,localctx.memb.res)
 
                     pass
                 elif token in [CprestoParser.T__45]:
@@ -5000,7 +4968,7 @@ class CprestoParser ( Parser ):
                     self.state = 844
                     localctx.memb = self.name()
 
-                    localctx.tmp = PtrMemberNode(localctx.tmp,memb)
+                    localctx.tmp = PtrMemberNode(localctx.tmp,localctx.memb.res)
 
                     pass
                 elif token in [CprestoParser.T__2]:
@@ -5011,7 +4979,7 @@ class CprestoParser ( Parser ):
                     self.state = 849
                     self.match(CprestoParser.T__3)
 
-                    localctx.tmp = FuncallNode(localctx.tmp,ags)
+                    localctx.tmp = FuncallNode(localctx.tmp,localctx.ags.res)
 
                     pass
                 else:
@@ -5069,7 +5037,7 @@ class CprestoParser ( Parser ):
                 self.state = 859
                 localctx.arg = self.expr()
 
-                localctx.ags.append(arg)
+                localctx.ags.append(localctx.arg.res)
 
                 self.state = 867
                 self._errHandler.sync(self)
@@ -5080,7 +5048,7 @@ class CprestoParser ( Parser ):
                     self.state = 862
                     localctx.arg = self.expr()
 
-                    localctx.ags.append(arg)
+                    localctx.ags.append(localctx.arg.res)
 
                     self.state = 869
                     self._errHandler.sync(self)
@@ -5144,7 +5112,7 @@ class CprestoParser ( Parser ):
                 self.state = 874
                 localctx.t = self.match(CprestoParser.INTEGER)
 
-                localctx.res =  self.integer_node(self.location(t),(None if localctx.t is None else localctx.t.text))
+                localctx.res =  self.integer_node(self.location(localctx.t),(None if localctx.t is None else localctx.t.text))
 
                 pass
             elif token in [CprestoParser.CHARACTER]:
@@ -5152,7 +5120,7 @@ class CprestoParser ( Parser ):
                 self.state = 876
                 localctx.t = self.match(CprestoParser.CHARACTER)
 
-                localctx.res =  IntegerLiteralNode(self.location(t),IntegerTypeRef.char_ref(),self.character_code((None if localctx.t is None else localctx.t.text)))
+                localctx.res =  IntegerLiteralNode(self.location(localctx.t),IntegerTypeRef.char_ref(),self.character_code((None if localctx.t is None else localctx.t.text)))
 
                 pass
             elif token in [CprestoParser.STRING]:
@@ -5160,7 +5128,7 @@ class CprestoParser ( Parser ):
                 self.state = 878
                 localctx.t = self.match(CprestoParser.STRING)
 
-                localctx.res =  StringLiteralNode(self.location(t),PointerTypeRef(IntegerTypeRef.char_ref()),self.string_value((None if localctx.t is None else localctx.t.text)))
+                localctx.res =  StringLiteralNode(self.location(localctx.t),PointerTypeRef(IntegerTypeRef.char_ref()),self.string_value((None if localctx.t is None else localctx.t.text)))
 
                 pass
             elif token in [CprestoParser.IDENTIFIER]:
@@ -5168,7 +5136,7 @@ class CprestoParser ( Parser ):
                 self.state = 880
                 localctx.t = self.match(CprestoParser.IDENTIFIER)
 
-                localctx.res =  VariableNode(loc=self.location(t),name=(None if localctx.t is None else localctx.t.text))
+                localctx.res =  VariableNode(loc=self.location(localctx.t),name=(None if localctx.t is None else localctx.t.text))
 
                 pass
             elif token in [CprestoParser.T__2]:
@@ -5180,7 +5148,7 @@ class CprestoParser ( Parser ):
                 self.state = 884
                 self.match(CprestoParser.T__3)
 
-                localctx.res = e
+                localctx.res = localctx.e.res
 
                 pass
             else:
@@ -5226,6 +5194,7 @@ class CprestoParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
 
+            print(self._input.LT(1).text)
             localctx.t = self._input.LT(1)
 
             self.state = 890
@@ -5233,8 +5202,8 @@ class CprestoParser ( Parser ):
             self.state = 891
             localctx.decls = self.top_defs()
 
-            decls.add(impdecls)
-            localctx.res=AST(self.location(localctx.t),decls) 
+            localctx.decls.res.add(localctx.impdecls.res)
+            localctx.res=AST(self.location(localctx.t),localctx.decls.res) 
 
         except RecognitionException as re:
             localctx.exception = re
@@ -5322,7 +5291,7 @@ class CprestoParser ( Parser ):
             self.state = 894
             localctx.impdecls = self.import_stmts()
              
-            localctx.decls.add(impdecls)
+            localctx.decls.add(localctx.impdecls.res)
 
             self.state = 916
             self._errHandler.sync(self)
@@ -5335,7 +5304,7 @@ class CprestoParser ( Parser ):
                     self.state = 896
                     localctx.fdecl = self.funcdecl()
                      
-                    localctx.decls.add(fdecl)
+                    localctx.decls.add(localctx.fdecl.res)
 
                     pass
 
@@ -5343,7 +5312,7 @@ class CprestoParser ( Parser ):
                     self.state = 899
                     localctx.vdecl = self.vardecl()
 
-                    localctx.decls.add(vdecl)
+                    localctx.decls.add(localctx.vdecl.res)
 
                     pass
 
@@ -5351,7 +5320,7 @@ class CprestoParser ( Parser ):
                     self.state = 902
                     localctx.defc = self.defconst()
 
-                    localctx.decls.add(defc)
+                    localctx.decls.add(localctx.defc.res)
 
                     pass
 
@@ -5359,7 +5328,7 @@ class CprestoParser ( Parser ):
                     self.state = 905
                     localctx.defs = self.defstruct()
 
-                    localctx.decls.add(defs)
+                    localctx.decls.add(localctx.defs.res)
 
                     pass
 
@@ -5367,7 +5336,7 @@ class CprestoParser ( Parser ):
                     self.state = 908
                     localctx.defu = self.defunion()
 
-                    localctx.decls.add(defu)
+                    localctx.decls.add(localctx.defu.res)
 
                     pass
 
@@ -5375,7 +5344,7 @@ class CprestoParser ( Parser ):
                     self.state = 911
                     localctx.tdef = self.typedef()
 
-                    localctx.decls.add(tdef)
+                    localctx.decls.add(localctx.tdef.res)
 
                     pass
 

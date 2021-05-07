@@ -1,4 +1,5 @@
-from ..exception.SemanticError import SemanticError
+from exception.SemanticError import SemanticError
+from .LHSNode import LHSNode
 
 class MemberNode(LHSNode):
     def __init__(self,expr,member):

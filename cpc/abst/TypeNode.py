@@ -1,5 +1,5 @@
-from ..type.Type import *
-from ..type.TypeRef import *
+from type.Type import *
+from type.TypeRef import *
 from .Node import Node
 
 class TypeNode(Node):
@@ -8,7 +8,7 @@ class TypeNode(Node):
         if isinstance(ref,TypeRef):
             self.type_ref = ref
             self.type = None
-        else:
+        elif isinstance(ref,Type):
             self.type_ref = None
             self.type = ref
     
@@ -29,7 +29,7 @@ class TypeNode(Node):
         return self.type
     
     def location(self):
-        return (None if self.type_ref==None else self.type_ref.location())
+        return (None if self.type_ref==None else self.type_ref.location)
     
     def _dump(self,dumper):
         dumper.print_member("typeref",self.type_ref)

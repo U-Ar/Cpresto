@@ -1,5 +1,4 @@
-from TypeRef import TypeRef
-from UserTypeRef import UserTypeRef
+from .TypeRef import TypeRef
 
 class UserTypeRef(TypeRef):
     def __init__(self,name,loc=None):
