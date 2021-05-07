@@ -28,7 +28,7 @@ class FuncallNode(ExprNode):
         self.args = args
     
     def location(self):
-        return self.expr.location()
+        return self.expr.location
     
     def _dump(self,dumper):
         dumper.print_member("expr", self.expr)

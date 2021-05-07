@@ -2,7 +2,7 @@ from .TypeRef import TypeRef
 
 class FunctionTypeRef(TypeRef):
     def __init__(self,return_type,params):
-        super().__init__(return_type.location())
+        super().__init__(return_type.location)
         self.return_type = return_type
         self.params = params
     

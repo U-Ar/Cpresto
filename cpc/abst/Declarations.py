@@ -1,71 +1,71 @@
 class Declarations:
     def __init__(self):
-        self.defvars = set()
-        self.vardecls = set()
-        self.defuns = set()
-        self.funcdecls = set()
-        self.constants = set()
-        self.defstructs = set()
-        self.defunions = set()
-        self.typedefs = set()
+        self._defvars = set()
+        self._vardecls = set()
+        self._defuns = set()
+        self._funcdecls = set()
+        self._constants = set()
+        self._defstructs = set()
+        self._defunions = set()
+        self._typedefs = set()
     
     def add(self,decls):
-        self.defvars = self.defvars | decls.defvars
-        self.vardecls = self.vardecls | decls.vardecls
-        self.funcdecls = self.funcdecls | decls.funcdecls
-        self.constants = self.constants | decls.constants
-        self.defstructs = self.defstructs | decls.defstructs
-        self.defunions = self.defunions | decls.defunions
-        self.typedefs = self.typedefs | decls.typedefs
+        self._defvars = self._defvars | decls.defvars()
+        self._vardecls = self._vardecls | decls.vardecls()
+        self._funcdecls = self._funcdecls | decls.funcdecls()
+        self._constants = self._constants | decls.constants()
+        self._defstructs = self._defstructs | decls.defstructs()
+        self._defunions = self._defunions | decls.defunions()
+        self._typedefs = self._typedefs | decls.typedefs()
 
     def add_defvar(self,var):
-        self.defvars.add(var)
+        self._defvars.add(var)
     
     def add_defvars(self,vs):
         for v in vs:
-            self.defvars.add(v)
+            self._defvars.add(v)
     
     def defvars(self):
-        return list(self.defvars)
+        return list(self._defvars)
     
     def add_vardecl(self,var):
-        self.vardecls.add(var)
+        self._vardecls.add(var)
     
     def vardecls(self):
-        return list(self.vardecls)
+        return list(self._vardecls)
     
     def add_constant(self,c):
-        self.constants.add(c)
+        self._constants.add(c)
     
     def constants(self):
-        return list(self.constants)
+        return list(self._constants)
     
     def add_defun(self,fun):
-        self.defuns.add(fun)
+        self._defuns.add(fun)
     
     def defuns(self):
-        return list(self.defuns)
+        return list(self._defuns)
     
     def add_funcdecl(self,fun):
-        self.funcdecls.add(fun)
+        self._funcdecls.add(fun)
     
     def funcdecls(self):
-        return list(self.funcdecls)
+        return list(self._funcdecls)
     
     def add_defstruct(self,n):
-        self.defstructs.add(n)
+        self._defstructs.add(n)
     
     def defstructs(self):
-        return list(self.defstructs)
+        return list(self._defstructs)
     
     def add_defunion(self,n):
-        self.defunions.add(n)
+        self._defunions.add(n)
     
     def defunions(self):
-        return list(self.defunions)
+        return list(self._defunions)
     
     def add_typedef(self,n):
-        self.typedefs.add(n)
+        self._typedefs.add(n)
     
     def typedefs(self):
-        return list(self.typedefs)
+        return list(self._typedefs)

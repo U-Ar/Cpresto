@@ -7,8 +7,6 @@ else:
 
 import sys
 sys.path.append('../')
-from type.IntegerTypeRef import IntegerTypeRef
-from exception.CompileException import CompileException
 
 from abst.AbstractAssignNode import *
 from abst.AddressNode import *

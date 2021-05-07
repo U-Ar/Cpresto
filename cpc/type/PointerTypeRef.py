@@ -2,7 +2,7 @@ from .TypeRef import TypeRef
 
 class PointerTypeRef(TypeRef):
     def __init__(self,base_type):
-        super().__init__(base_type.location())
+        super().__init__(base_type.location)
         self.base_type = base_type
     
     def is_pointer(self):

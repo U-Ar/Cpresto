@@ -6,8 +6,6 @@ options { language=Python3; }
 {
 import sys
 sys.path.append('../')
-from type.IntegerTypeRef import IntegerTypeRef
-from exception.CompileException import CompileException
 
 from abst.AbstractAssignNode import *
 from abst.AddressNode import *
@@ -176,7 +174,7 @@ def string_value(self,_image):
         pos = 0
         buf = ""
         image = _image[1:-1]
-        idx = image.index("\\",pos)
+        idx = image.find("\\",pos)
         while idx >= 0:
                 buf += image[pos:idx]
                 if len(image) >= idx + 4 and image[idx+1].isdigit() and \
@@ -186,7 +184,7 @@ def string_value(self,_image):
                 else :
                         buf += self.unescape_seq(image[idx+1])
                         pos = idx + 2
-                idx = image.index("\\",pos)
+                idx = image.find("\\",pos)
         if pos < len(image):
                 buf += image[pos:len(image)]
         return buf
@@ -276,8 +274,8 @@ $res = $buf
 funcdecl returns [res] locals [t] :
         EXTERN ret=typeref n=name '(' ps=params ')' ';'
 {
-$t = FunctionTypeRef(ret,ps.parameters_type_ref())
-$res = UndefinedFunction(TypeNode($t),n,ps)
+$t = FunctionTypeRef(ret,localctx.ps.res.parameters_type_ref())
+$res = UndefinedFunction(TypeNode($t),localctx.n.res,localctx.ps.res)
 } ; // funcdecl
 
 
@@ -328,12 +326,12 @@ $res = $decls
 defvars returns [res] locals [defs=list(),initflag=False] :
         priv=storage t=typename n=name ('=' init=expr 
 {
-if init != None:
+if localctx.init.res != None:
         $initflag = True
 }       
         )? 
 {
-$defs.append(DefinedVariable(priv,t,n,None) if not $initflag else DefinedVariable(priv,t,n,init))
+$defs.append(DefinedVariable(localctx.priv.res,localctx.t.res,localctx.n.res,None) if not $initflag else DefinedVariable(localctx.priv.res,localctx.t.res,localctx.n.res,localctx.init.res))
 $initflag=False
 }
         ( ',' n=name ('=' init=expr 
@@ -343,7 +341,7 @@ if init != None:
 }       
         )?
 {
-$defs.append(DefinedVariable(priv,t,n,None) if not $initflag else DefinedVariable(priv,t,n,init))
+$defs.append(DefinedVariable(localctx.priv.res,localctx.t.res,localctx.n.res,None) if not $initflag else DefinedVariable(localctx.priv.res,localctx.t.res,localctx.n.res,localctx.init.res))
 $initflag=False
 }
         )* ';'
@@ -367,7 +365,7 @@ $res = DefinedFunction(localctx.priv.res,TypeNode($t),localctx.n.res,localctx.ps
 
 
 params returns [res] locals [] : 
-        (t=VOID
+        t=VOID
 {
 $res = Params(self.location(localctx.t),[])
 }
@@ -379,7 +377,7 @@ localctx.pms.res.accept_varargs()
 {
 $res = localctx.pms.res
 }
-        ) ; // params
+ ; // params
 
 
 fixedparams returns [res] locals [pms=list()] : 
@@ -415,8 +413,8 @@ $res = BlockNode(self.location(localctx.t),localctx.v.res,localctx.s.res)
 defvar_list returns [res] locals [l=list()] :
         (vs=defvars 
 { 
-if vs != None:
-        $l += vs
+if localctx.vs!= None:
+        $l += localctx.vs.res
 }
         )*
 {
@@ -427,14 +425,14 @@ $res = $l
 defconst returns [res] locals [] : 
         CONST t=typename n=name '=' v=expr ';' 
 {
-$res = Constant(t,n,v)
+$res = Constant(localctx.t.res,localctx.n.res,localctx.v.res)
 } ; // defconst
 
 
 defstruct returns [res] locals [] : 
         t=STRUCT n=name membs=member_list ';' 
 {
-$res = StructNode(self.location(t),StructTypeRef(n),n,membs)
+$res = StructNode(self.location(localctx.t),StructTypeRef(localctx.n.res),localctx.n.res,localctx.membs.res)
 } ; // defstruct
 
 
@@ -1111,7 +1109,8 @@ $t = self._input.LT(1)
 }
         impdecls=import_stmts decls=top_defs
 {
-localctx.decls.res.add(localctx.impdecls.res)
+if localctx.impdecls.res != None:
+        localctx.decls.res.add($impdecls.res)
 $res=AST(self.location($t),localctx.decls.res) 
 } ; // compilation_unit
 
