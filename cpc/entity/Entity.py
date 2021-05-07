@@ -3,18 +3,18 @@ from abst.Dumpable import Dumpable
 
 class Entity(Dumpable):
     def __init__(self,priv,t,name):
-        self.name = name
-        self.is_private = priv
-        self.type_node = t
+        self._name = name
+        self._is_private = priv
+        self._type_node = t
         self.n_refered = 0
-        self.memref = None
-        self.address = None
+        self._memref = None
+        self._address = None
     
     def name(self):
-        return self.name
+        return self._name
     
     def symbol_string(self):
-        return self.name()
+        return self._name
     
     @abstractmethod
     def is_defined(self):
@@ -34,13 +34,13 @@ class Entity(Dumpable):
         return False
     
     def is_private(self):
-        return self.is_private
+        return self._is_private
     
     def type_node(self):
-        return self.type_node
+        return self._type_node
 
     def type(self):
-        return self.type_node.type()
+        return self._type_node.type()
 
     def alloc_size(self):
         return self.type().alloc_size()
@@ -55,25 +55,25 @@ class Entity(Dumpable):
         return self.n_refered > 0
     
     def set_memref(self,mem):
-        self.memref = mem
+        self._memref = mem
     
     def memref(self):
         self.check_address()
-        return self.memref
+        return self._memref
     
     def set_address(self,mem):
-        self.address = mem
+        self._address = mem
     
     def address(self):
         self.check_address()
-        return self.address
+        return self._address
     
     def check_address(self):
-        if self.memref == None and self.address == None:
-            raise Exception("address did not resolved: "+self.name)
+        if self._memref == None and self._address == None:
+            raise Exception("address did not resolved: "+self._name)
     
     def location(self):
-        return self.type_node.location()
+        return self._type_node.location()
     
     @abstractmethod
     def accept(self,visitor):

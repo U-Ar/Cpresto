@@ -3,45 +3,45 @@ from .ExprNode import ExprNode
 class BinaryOpNode(ExprNode):
     def __init__(self,left,op,right,t=None):
         super().__init__()
-        self.operator = op
-        self.left = left
-        self.right = right
-        self.type = t
+        self._operator = op
+        self._left = left
+        self._right = right
+        self._type = t
 
     
     def operator(self):
-        return self.operator
+        return self._operator
     
     def type(self):
-        if self.type == None:
-            return self.left.type
+        if self._type == None:
+            return self._left.type()
         else:
-            return self.type
+            return self._type
     
     def set_type(self,t):
-        if self.type != None:
+        if self._type != None:
             raise Exception("BinaryOp.set_type called twice")
-        self.type = t
+        self._type = t
     
     def left(self):
-        return self.left
+        return self._left
     
     def right(self):
-        return self.right
+        return self._right
     
     def set_left(self,left):
-        self.left = left
+        self._left = left
     
     def set_right(self,right):
-        self.right = right
+        self._right = right
     
     def location(self):
-        return self.left.location()
+        return self._left.location()
     
     def _dump(self,dumper):
-        dumper.print_member("operator", self.operator)
-        dumper.print_member("left", self.left)
-        dumper.print_member("right", self.right)
+        dumper.print_member("operator", self._operator)
+        dumper.print_member("left", self._left)
+        dumper.print_member("right", self._right)
 
     def accept(visitor):
         return visitor.visit(self)

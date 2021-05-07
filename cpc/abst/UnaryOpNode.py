@@ -2,14 +2,14 @@ from .ExprNode import ExprNode
 
 class UnaryOpNode(ExprNode):
     def __init__(self,op,expr):
-        self.operator = op
-        self.expr = expr
+        self._operator = op
+        self._expr = expr
     
     def operator(self):
-        return self.operator
+        return self._operator
     
     def type(self):
-        return self.expr.type()
+        return self._expr.type()
     
     def set_op_type(self,t):
         self.op_type = t
@@ -18,17 +18,17 @@ class UnaryOpNode(ExprNode):
         return self.op_type
     
     def expr(self):
-        return self.expr
+        return self._expr
     
     def set_expr(self,expr):
-        self.expr = expr
+        self._expr = expr
     
     def location(self):
-        return self.expr.location()
+        return self._expr.location()
     
     def _dump(self,dumper):
-        dumper.print_member("operator",self.operator)
-        dumper.print_member("expr",self.expr)
+        dumper.print_member("operator",self._operator)
+        dumper.print_member("expr",self._expr)
     
     def accept(self,visitor):
         return visitor.visit(self)

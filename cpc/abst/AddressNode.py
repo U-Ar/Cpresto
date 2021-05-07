@@ -2,29 +2,29 @@ from .ExprNode import ExprNode
 
 class AddressNode(ExprNode):
     def __init__(self,expr):
-        self.expr = expr
-        self.type = None
+        self._expr = expr
+        self._type = None
     
     def expr(self):
-        return self.expr
+        return self._expr
     
     def type(self):
-        if self.type == None:
+        if self._type == None:
             raise Exception("type is null")
-        return self.type
+        return self._type
     
     def set_type(self,t):
-        if self.type != None:
+        if self._type != None:
             raise Exception("type set twice")
-        self.type = t
+        self._type = t
     
     def location(self):
-        return self.expr.location()
+        return self._expr.location()
     
     def _dump(self,dumper):
-        if self.type == None:
-            dumper.print_member("type", self.type)
-        dumper.print_member("expr", self.expr)
+        if self._type == None:
+            dumper.print_member("type", self._type)
+        dumper.print_member("expr", self._expr)
 
     def accept(self,visitor):
         return visitor.visit(self)

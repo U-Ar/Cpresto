@@ -5,7 +5,7 @@ class ParamSlots:
         else:
             self.vararg = True
         self.param_descriptors = param_descs
-        self.location = loc
+        self._location = loc
     
     def argc(self):
         if self.vararg:
@@ -22,4 +22,4 @@ class ParamSlots:
         return self.vararg
     
     def location(self):
-        return self.location
+        return self._location

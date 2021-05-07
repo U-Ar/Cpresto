@@ -7,7 +7,7 @@ class ToplevelScope(Scope):
     def __init__(self):
         super().__init__()
         self.entities = dict()
-        self.static_local_variables = None
+        self._static_local_variables = None
     
     def is_toplevel(self):
         return True
@@ -62,12 +62,12 @@ class ToplevelScope(Scope):
         return result
     
     def static_local_variables(self):
-        if self.static_local_variables == None:
-            self.static_local_variables = []
+        if self._static_local_variables == None:
+            self._static_local_variables = []
             for s in self.children:
-                self.static_local_variables += s.static_local_variables()
+                self._static_local_variables += s.static_local_variables()
             seq_table = dict()
-            for var in self.static_local_variables:
+            for var in self._static_local_variables:
                 if var.name() not in seq_table:
                     var.set_sequence(0)
                     seq_table[var.name()] = 1
@@ -75,7 +75,7 @@ class ToplevelScope(Scope):
                     seq = seq_table[var.name()]
                     var.set_sequence(seq)
                     seq_table[var.name()] = seq + 1
-        return self.static_local_variables
+        return self._static_local_variables
     
     def check_references(self,h):
         for ent in self.entities.values():

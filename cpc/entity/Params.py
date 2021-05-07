@@ -14,7 +14,7 @@ class Params(ParamSlots,Dumpable):
         #print("type of self.param_desc",type(self.param_descriptors))
         for param in self.param_descriptors:
             typerefs.append(param.type_node.type_ref)
-        return ParamTypeRefs(self.location,typerefs,self.vararg)
+        return ParamTypeRefs(self.location(),typerefs,self.vararg)
     
     def equals(self,other):
         return isinstance(other,Params) and \

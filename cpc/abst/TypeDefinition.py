@@ -4,24 +4,24 @@ from abc import ABCMeta, abstractmethod
 
 class TypeDefinition(Node):
     def __init__(self,loc,ref,name):
-        self.name = name
-        self.location = loc
-        self.type_node = TypeNode(ref)
+        self._name = name
+        self._location = loc
+        self._type_node = TypeNode(ref)
     
     def name(self):
-        return self.name
+        return self._name
 
     def location(self):
-        return self.location
+        return self._location
     
     def type_node(self):
-        return self.type_node
+        return self._type_node
     
     def type_ref(self):
-        return self.type_node.type_ref()
+        return self._type_node.type_ref()
     
     def type(self):
-        return self.type_node.type()
+        return self._type_node.type()
 
     @abstractmethod
     def defining_type(self):

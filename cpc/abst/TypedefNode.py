@@ -24,8 +24,8 @@ class TypedefNode(TypeDefinition):
         return UserType(self.name(),self.real_type_node(),self.location())
     
     def _dump(self,dumper):
-        dumper.print_member("name",self.name)
-        dumper.print_member("type_node",self.type_node)
+        dumper.print_member("name",self.name())
+        dumper.print_member("type_node",self.type_node())
     
     def accept(self,visitor):
         return visitor.visit(self)

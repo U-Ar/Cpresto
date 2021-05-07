@@ -4,17 +4,17 @@ from .ExprNode import ExprNode
 class LHSNode(ExprNode):
     def __init__(self):
         super().__init__()
-        self.type = None
-        self.orig_type = None
+        self._type = None
+        self._orig_type = None
     
     def type(self):
-        if self.type == None:
+        if self._type == None:
             return self.orig_type()
         else:
-            return self.type
+            return self._type
     
     def set_type(self,t):
-        self.type = t
+        self._type = t
     
     @abstractmethod
     def orig_type(self):

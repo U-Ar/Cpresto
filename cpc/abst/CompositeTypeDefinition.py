@@ -4,7 +4,7 @@ from .TypeDefinition import TypeDefinition
 class CompositeTypeDefinition(TypeDefinition):
     def __init__(self,loc,ref,name,membs):
         super().__init__(loc,ref,name)
-        self.members = membs
+        self._members = membs
     
     def is_composite_type(self):
         return True
@@ -14,8 +14,8 @@ class CompositeTypeDefinition(TypeDefinition):
         pass
 
     def members(self):
-        return self.members
+        return self._members
     
     def _dump(self,dumper):
-        dumper.print_member("name",name)
-        dumper.print_node_list("members",members)
+        dumper.print_member("name",self.name())
+        dumper.print_node_list("members",self.members())

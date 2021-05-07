@@ -4,17 +4,17 @@ from .ExprNode import ExprNode
 class LiteralNode(ExprNode):
     def __init__(self,loc,ref):
         super().__init__()
-        self.location = loc
-        self.type_node = TypeNode(ref)
+        self._location = loc
+        self._type_node = TypeNode(ref)
     
     def location(self):
-        return self.location
+        return self._location
     
     def type(self):
-        return self.type_node.type()
+        return self._type_node.type()
     
     def type_node(self):
-        return self.type_node
+        return self._type_node
     
     def is_constant(self):
         return True

@@ -2,29 +2,29 @@ from .CprestoToken import CprestoToken
 
 class Location:
     def __init__(self,sourcename,token,kindname=""):
-        self.source_name = sourcename
+        self._source_name = sourcename
         if isinstance(token,CprestoToken):
-            self.token = token
+            self._token = token
         else :
-            self.token = CprestoToken(token,kindname)
+            self._token = CprestoToken(token,kindname)
     
     def source_name(self):
-        return self.source_name
+        return self._source_name
     
     def token(self):
-        return self.token
+        return self._token
     
     def lineno(self):
-        return self.token.lineno()
+        return self._token.lineno()
     
     def column(self):
-        return self.token.column()
+        return self._token.column()
     
     def line(self):
-        return self.token.included_line()
+        return self._token.included_line()
     
     def numbered_line(self):
-        return "line " + self.token.lineno() + ": " + self.line()
+        return "line " + self._token.lineno() + ": " + self.line()
     
     def to_string(self):
-        return self.source_name + ":" + self.token.lineno()
+        return self._source_name + ":" + self._token.lineno()

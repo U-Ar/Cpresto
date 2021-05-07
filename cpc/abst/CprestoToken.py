@@ -16,7 +16,7 @@ class CprestoToken:
         return self.is_special
     
     def kind_ID(self):
-        return self.token.getType()
+        return self.token.type
     
     def kind_name(self):
         return self.kind_name

@@ -4,21 +4,21 @@ from .StmtNode import StmtNode
 class CaseNode(StmtNode):
     def __init__(self,loc,values,body):
         super().__init__(loc)
-        self.values = values
-        self.body = body
-        self.label = Label()
+        self._values = values
+        self._body = body
+        self._label = Label()
 
     def values(self):
-        return self.values
+        return self._values
     
     def is_default(self):
-        return len(self.values) == 0
+        return len(self._values) == 0
     
     def body(self):
-        return self.body
+        return self._body
     
     def label(self):
-        return self.label
+        return self._label
     
     def _dump(self,dumper):
         dumper.print_node_list("values",values)

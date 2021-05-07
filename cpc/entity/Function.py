@@ -5,8 +5,8 @@ from asm.Label import Label
 class Function(Entity):
     def __init__(self,priv,t,name):
         super().__init__(priv,t,name)
-        self.calling_symbol = None
-        self.label = None
+        self._calling_symbol = None
+        self._label = None
     
     def is_initialized(self):
         return True
@@ -26,19 +26,19 @@ class Function(Entity):
         return self.return_type().is_void()
     
     def set_calling_symbol(self,sym):
-        if self.calling_symbol != None:
+        if self._calling_symbol != None:
             raise Exception("must not happen: Function.calling_symbol set twice")
-        self.calling_symbol = sym
+        self._calling_symbol = sym
 
     def calling_symbol(self):
-        if self.calling_symbol == None:
+        if self._calling_symbol == None:
             raise Exception("must not happen: Function.calling_symbol called but None")
-        return self.calling_symbol
+        return self._calling_symbol
 
     def label(self):
-        if self.label != None:
-            return self.label
+        if self._label != None:
+            return self._label
         else:
-            self.label = Label(self.calling_symbol())
-            return self.label
+            self._label = Label(self._calling_symbol())
+            return self._label
     

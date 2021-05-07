@@ -5,9 +5,9 @@ class DefinedVariable(Variable):
 
     def __init__(self,priv,t,name,init):
         super().__init__(priv,t,name)
-        self.initializer = init
+        self._initializer = init
         self.sequence = -1
-        self.ir = None
+        self._ir = None
         self.symbol = None
     
     tmp_seq = 0
@@ -31,28 +31,28 @@ class DefinedVariable(Variable):
             return self.name + "." + str(self.sequence)
     
     def has_initializer(self):
-        return self.initializer != None
+        return self._initializer != None
 
     def is_initialized(self):
         return self.has_initialier()
     
     def initializer(self):
-        return self.initializer
+        return self._initializer
 
     def set_initializer(self,expr):
-        self.initializer = expr
+        self._initializer = expr
     
     def set_IR(self,expr):
-        self.ir = expr
+        self._ir = expr
     
     def ir(self):
-        return self.ir
+        return self._ir
     
     def _dump(self,dumper):
         dumper.print_member("name", self.name)
         dumper.print_member("is_private", self.is_private)
         dumper.print_member("type_node", self.type_node)
-        dumper.print_member("initializer", self.initializer)
+        dumper.print_member("initializer", self._initializer)
     
     def accept(self,visitor):
         return visitor.visit(self)

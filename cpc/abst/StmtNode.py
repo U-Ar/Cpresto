@@ -3,10 +3,10 @@ from .Node import Node
 
 class StmtNode(Node):
     def __init__(self,loc):
-        self.location = loc
+        self._location = loc
     
     def location(self):
-        return self.location
+        return self._location
     
     @abstractmethod
     def accept(self,visitor):

@@ -3,18 +3,18 @@ from .StmtNode import StmtNode
 class WhileNode(StmtNode):
     def __init__(self,loc,cond,body):
         super().__init__(loc)
-        self.cond = cond
-        self.body = body
+        self._cond = cond
+        self._body = body
     
     def cond(self):
-        return self.cond
+        return self._cond
     
     def body(self):
-        return self.body
+        return self._body
     
     def _dump(self,dumper):
-        dumper.print_member("cond",self.cond)
-        dumper.print_member("body",self.body)
+        dumper.print_member("cond",self._cond)
+        dumper.print_member("body",self._body)
     
     def accept(self,visitor):
         return visitor.visit(self)

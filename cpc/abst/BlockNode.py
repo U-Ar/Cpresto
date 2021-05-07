@@ -4,19 +4,19 @@ from .StmtNode import StmtNode
 class BlockNode(StmtNode):
     def __init__(self,loc,vs,stmts):
         super().__init__(loc)
-        self.variables = vs
-        self.stmts = stmts
+        self._variables = vs
+        self._stmts = stmts
     
     def variables(self):
-        return self.variables
+        return self._variables
     
     def stmts(self):
-        return self.stmts
+        return self._stmts
     
     def tail_stmt(self):
-        if len(self.stmts) == 0:
+        if len(self._stmts) == 0:
             return None
-        return self.stmts[-1]
+        return self._stmts[-1]
     
     def scope(self):
         return self.scope
