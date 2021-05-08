@@ -11,7 +11,8 @@ class IndirectMemoryReference(MemoryReference):
         self._base = base
         self._fixed = fixed
 
-    def relocatable(self,offset,base):
+    @staticmethod
+    def relocatable(offset,base):
         return IndirectMemoryReference(IntegerLiteral(offset),self._base,False)
     
     def offset(self):

@@ -11,6 +11,9 @@ class Register(asm.Register):
     def for_type(self,t):
         return Register(self._class,t)
     
+    def type(self):
+        return self._type
+    
     def is_register(self):
         return True
     
