@@ -42,3 +42,7 @@ class CprestoToken:
         pass
         #res = []
         #while 
+
+    def special_token_head(self,first):
+        s = first
+        while s.special

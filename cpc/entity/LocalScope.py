@@ -4,18 +4,18 @@ from .DefinedVariable import DefinedVariable
 class LocalScope(Scope):
     def __init__(self,parent):
         super().__init__()
-        self.parent = parent
-        self.parent.add_child(self)
+        self._parent = parent
+        self._parent.add_child(self)
         self.variables = dict()
     
     def is_toplevel(self):
         return False
     
     def toplevel(self):
-        return self.parent.toplevel()
+        return self._parent.toplevel()
 
     def parent(self):
-        return self.parent
+        return self._parent
     
     def children(self):
         return self.children
@@ -38,7 +38,7 @@ class LocalScope(Scope):
         if name in self.variables:
             return self.variables[name]
         else :
-            return self.parent.get(name)
+            return self._parent.get(name)
     
     # returns all local variables in this scope.
     # the result DOES include all nested local variables

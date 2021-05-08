@@ -3,11 +3,11 @@ from exception.SemanticError import SemanticError
 
 class FuncallNode(ExprNode):
     def __init__(self,expr,args):
-        self.expr = expr
-        self.args = args
+        self._expr = expr
+        self._args = args
     
     def expr(self):
-        return self.expr
+        return self._expr
     
     def type(self):
         try:
@@ -16,23 +16,23 @@ class FuncallNode(ExprNode):
             raise SemanticError(ex.message)
     
     def function_type(self):
-        return self.expr.type().get_pointer_type().base_type().get_function_type()
+        return self._expr.type().get_pointer_type().base_type().get_function_type()
 
     def num_args(self):
-        return len(self.args)
+        return len(self._args)
     
     def args(self):
-        return self.args
+        return self._args
     
     def replace_args(self,args):
-        self.args = args
+        self._args = args
     
     def location(self):
-        return self.expr.location
+        return self._expr.location()
     
     def _dump(self,dumper):
-        dumper.print_member("expr", self.expr)
-        dumper.print_node_list("args", self.args)
+        dumper.print_member("expr", self._expr)
+        dumper.print_node_list("args", self._args)
     
     def accept(self,visitor):
         return visitor.visit(self)

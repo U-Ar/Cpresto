@@ -4,28 +4,28 @@ from .StmtNode import StmtNode
 class ForNode(StmtNode):
     def __init__(self,loc,init,cond,incr,body):
         super().__init__(loc)
-        self.init = ExprStmtNode(init.location(),init)
-        self.cond = cond
-        self.incr = ExprStmtNode(incr.location(),incr)
-        self.body = body
+        self._init = ExprStmtNode(init.location(),init)
+        self._cond = cond
+        self._incr = ExprStmtNode(incr.location(),incr)
+        self._body = body
 
     def init(self):
-        return self.init
+        return self._init
     
     def cond(self):
-        return self.cond
+        return self._cond
     
     def incr(self):
-        return self.incr
+        return self._incr
     
     def body(self):
-        return self.body
+        return self._body
     
     def _dump(self,dumper):
-        dumper.print_member("init",self.init)
-        dumper.print_member("cond",self.cond)
-        dumper.print_member("incr",self.incr)
-        dumper.print_member("body",self.body)
+        dumper.print_member("init",self._init)
+        dumper.print_member("cond",self._cond)
+        dumper.print_member("incr",self._incr)
+        dumper.print_member("body",self._body)
     
     def accept(self,visitor):
         return visitor.visit(self)
