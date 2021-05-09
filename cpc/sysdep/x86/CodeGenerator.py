@@ -398,20 +398,231 @@ class CodeGenerator(sysdep.CodeGenerator,IRVisitor,ELFConstants):
     def rewind_stack(self,f,l):
         if l > 0:
             f.add(self.imm(l),self.sp())
+
+    #
+    # Helper methods for Visit
+    #
+
+    def compile_stmt(self,stmt):
+        if self.options.is_verbose_asm():
+            if stmt.location() != None:
+                self.as_.comment(stmt.location().numbered_line())
+        stmt.accept(self)
+    
+    def compile(self,n):
+        if self.options.is_verbose_asm():
+            self.as_.comment(str(type(n)) + " {")
+            self.as_.indent_comment()
+        n.accept(self)
+        if self.options.is_verbose_asm():
+            self.as_.unindent_comment()
+            self.as_.comment("}")
+    
+    def does_require_register_operand(self,op):
+        if op == Op.S_DIV or op == Op.U_DIV or op == Op.S_MOD or op == Op.U_MOD or \
+            op == Op.BIT_LSHIFT or op == Op.BIT_RSHIFT or op == Op.ARITH_RSHIFT :
+            return True
+        else :
+            return False
+    
+    def compile_binary_op(self,op,left,right):
+        if op == Op.ADD:
+            self.as_.add(right,left)
+        elif op == Op.SUB:
+            self.as_.sub(right,left)
+        elif op == Op.MUL:
+            self.as_.imul(right,left)
+        elif op == Op.S_DIV or op == Op.S_MOD:
+            self.as_.cltd()
+            self.as_.idiv(self.cx(left.type()))
+            if op == Op.S_MOD:
+                self.as_.mov(self.dx(),left)
+        elif op == Op.U_DIV or op == Op.U_MOD:
+            self.as_.mov(self.imm(0),self.dx())
+            self.as_.div(self.cx(left.type()))
+            if op == Op.U_MOD:
+                self.as_.mov(self.dx(),left)
+        elif op == Op.BIT_AND:
+            self.as_.and_(right,left)
+        elif op == Op.BIT_OR:
+            self.as_.or_(right,left)
+        elif op == Op.BIT_XOR:
+            self.as_.xor(right,left)
+        elif op == Op.BIT_LSHIFT:
+            self.as_.sal(self.cl(),left)
+        elif op == Op.BIT_RSHIFT:
+            self.as_.shr(self.cl(),left)
+        elif op == Op.ARITH_RSHIFT:
+            self.as_.sar(self.cl(),left)
+        else :
+            self.as_.cmp(right,self.ax(left.type()))
+            if op == Op.EQ:
+                self.as_.sete(self.al())
+            elif op == Op.NEQ:
+                self.as_.setne(self.al())
+            elif op == Op.S_GT:
+                self.as_.setg(self.al())
+            elif op == Op.S_GTEQ:
+                self.as_.setge(self.al())
+            elif op == Op.S_LT:
+                self.as_.setl(self.al())
+            elif op == Op.S_LTEQ:
+                self.as_.setle(self.al())
+            elif op == Op.U_GT:
+                self.as_.seta(self.al())
+            elif op == Op.U_GTEQ:
+                self.as_.setae(self.al())
+            elif op == Op.U_LT:
+                self.as_.setb(self.al())
+            elif op == Op.U_LTEQ:
+                self.as_.setbe(self.al())
+            else :
+                raise Exception("unknown binary operator: "+str(op.value))
+            self.as_.movzx(self.al(),left)
+        
     
     #
     # Visit for IR
     #
     def visit(self,node): 
-
-
-
+        if isinstance(node,Call):
+            for arg in reversed(node.args()):
+                self.compile(arg):
+                self.as_.push(self.ax())
+            if node.is_static_call():
+                self.as_.call(node.function().calling_symbol())
+            else :
+                self.compile(node.expr())
+                self.as_.call_absolute(self.ax())
+            self.rewind_stack(self.as_,self.stack_size_from_word_num(node.num_args()))
+            return None
+        elif isinstance(node,Return):
+            if node.expr() != None:
+                self.compile(node.expr())
+            self.as_.jmp(self.epilogue)
+            return None
+        # statements
+        elif isinstance(node,Stmt):
+            stmt = node
+            if self.options.is_verbose_asm():
+                if stmt.location() != None:
+                    self.as_.comment(stmt.location().numbered_line())
+            stmt.accept(self)
+        elif isinstance(node,ExprStmt):
+            stmt = node
+            self.compile(stmt.expr())
+            return None
+        elif isinstance(node,LabelStmt):
+            self.as_.label(node.label)
+            return None
+        elif isinstance(node,Jump):
+            self.as_.jmp(node.label())
+            return None
+        elif isinstance(node,CJump):
+            self.compile(node.cond())
+            t = node.cond().type()
+            self.as_.test(self.ax(t),self.ax(t))
+            self.as_.jnz(node.then_label())
+            self.as_.jmp(node.else_label())
+            return None
+        elif isinstance(node,Switch):
+            self.compile(node.cond())
+            t = node.cond().type()
+            for c in node.cases():
+                self.as_.mov(self.imm(c.value()),self.cx())
+                self.as_.cmp(self.cx(t),self.ax(t))
+                self.as_.je(c.label())
+            self.as_.jmp(node.default_label())
+            return None
+        elif isinstance(node,Bin):
+            op = node.op()
+            t = node.type()
+            if node.right().is_constant() and not self.does_require_register_operand(op):
+                self.compile(node.left())
+                self.compile_binary_op(op,self.ax(t),node.right().asm_value())
+            elif node.right().is_constant():
+                self.compile(node.left())
+                self.load_constant(node.right(),self.cx())
+                self.compile_binary_op(op,self.ax(t),self.cx(t))
+            elif node.right().is_var():
+                self.compile(node.left())
+                self.load_variable(node.right(),self.cx(t))
+                self.compile_binary_op(op,self.ax(t),self.cx(t))
+            elif node.right().is_addr():
+                self.compile(node.left())
+                self.load_address(node.right().get_entity_force(),self.cx(t))
+                self.compile_binary_op(op,self.ax(t),self.cx(t))
+            elif node.left().is_constant() or node.left().is_var() or \
+                node.left().is_addr() :
+                self.compile(node.right())
+                self.as_.mov(self.ax(),self.cx())
+                self.compile(node.left())
+                self.compile_binary_op(op,self.ax(t),self.cx(t))
+            else :
+                self.compile(node.right())
+                self.virtual_push(self.ax())
+                self.compile(node.left())
+                self.virtual_pop(self.cx())
+                self.compile_binary_op(op,self.ax(t),self.cx(t))
+            return None
+        elif isinstance(node,Uni):
+            src = node.expr().type()
+            dest = node.type()
+            self.compile(node.expr())
+            if node.op() == Op.UMINUS:
+                self.as_.neg(self.ax(src))
+            elif node.op() == Op.BIT_NOT:
+                self.as_.not_(self.ax(src))
+            elif node.op() == Op.NOT:
+                self.as_.test(self.ax(src),self.ax(src))
+                self.as_.sete(self.al())
+                self.as_.movzx(self.al(),self.ax(dest))
+            elif node.op() == Op.S_CAST:
+                self.as_.movsx(self.ax(src),self.ax(dest))
+            elif node.op() == Op.U_CAST:
+                self.as_.movzx(self.ax(src),self.ax(dest))
+            else :
+                raise Exception("unknown unary operator: " + node.op())
+            return None
+        elif isinstance(node,Var):
+            self.load_variable(node,self.ax())
+            return None
+        elif isinstance(node,Int):
+            self.as_.mov(self.imm(node.value()),self.ax())
+            return None
+        elif isinstance(node,Str):
+            self.load_constant(node,self.ax())
+            return None
+        elif isinstance(node,Assign):
+            if node.lhs().is_addr() and node.lhs().memref() != None:
+                self.compile(node.rhs())
+                self.store(self.ax(node.lhs().type()),node.lhs().memref())
+            elif node.rhs().is_constant():
+                self.compile(node.lhs())
+                self.as_.mov(self.ax(),self.cx())
+                self.load_constant(node.rhs(),self.ax())
+                self.store(self.ax(node.lhs().type()),self.mem(self.cx()))
+            else :
+                self.compile(node.rhs())
+                self.as_.virtual_push(self.ax())
+                self.compile(node.lhs())
+                self.as_.mov(self.ax(),self.cx())
+                self.as_.virtual_pop(self.ax())
+                self.store(self.ax(node.lhs().type()),self.mem(self.cx()))
+            return None
+        elif isinstance(node,Mem):
+            self.compile(node.expr())
+            self.load(self.mem(self.ax()),self.ax(node.type()))
+            return None
+        elif isinstance(node,Addr):
+            self.load_address(node.entity(), self.ax())
+            return None
 
     
     #
     # Utilities
     #
-    
+
     def load_constant(self,node,reg):
         if node.asm_value() != None:
             self.as_.mov(node.asm_value(),reg)
@@ -494,27 +705,3 @@ class CodeGenerator(sysdep.CodeGenerator,IRVisitor,ELFConstants):
     def store(self,reg,mem):
         self.as_.mov(reg,mem)
         
-
-
-
-    
-    
-
-
-    
-    
-
-
-    
-
-    
-    
-
-
-    
-
-
-
-
-    
-
