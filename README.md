@@ -16,5 +16,6 @@ Initial implementation is finished and now testing.
 
 
 ## Licence information 
-copyright of /import and /test : 
+
+/import and /test are not my works. copyright: 
 Copyright (c) 2007-2009  Minero Aoki.  All rights reserved.

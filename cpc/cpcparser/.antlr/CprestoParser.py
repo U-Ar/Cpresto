@@ -779,13 +779,13 @@ class CprestoParser ( Parser ):
             try:
                     return self.compilation_unit()
             except Exception as ex:
-                    raise SyntaxException(ex.message)
+                    raise SyntaxException(str(ex))
 
     def parse_decls(self):
             try:
                     return self.declaration_file()
             except Exception as ex:
-                    raise SyntaxException(ex.message)
+                    raise SyntaxException(str(ex))
 
     def add_known_typedefs(self,typedefs):
             for n in typedefs:

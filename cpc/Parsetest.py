@@ -1,9 +1,9 @@
 import sys
 from antlr4 import *
-from CprestoLexer import CprestoLexer
-from CprestoParser import CprestoParser
-from WrappedParser import WrappedParser
-from LibraryLoader import LibraryLoader
+from cpcparser.CprestoLexer import CprestoLexer
+from cpcparser.CprestoParser import CprestoParser
+from cpcparser.WrappedParser import WrappedParser
+from cpcparser.LibraryLoader import LibraryLoader
 def main(argv):
     #input_stream = FileStream(argv[1])
     #lexer = CprestoLexer(input_stream)
@@ -13,6 +13,7 @@ def main(argv):
     print()
     parser = WrappedParser.new_file_parser(argv[1],LibraryLoader(),None,None)
     tree = parser.compilation_unit() #トップレベルのトークン 
+    print(type(tree.res))
     print(tree.toStringTree(recog=parser))
 if __name__ == "__main__":
     sys.path.append("../")

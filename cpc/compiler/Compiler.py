@@ -99,6 +99,9 @@ class Compiler:
         if self.print_asm(asm,opts.mode()):
             return
         self.write_file(destpath,asm.to_source())
+    
+    def parse_file(self,path,opts):
+        return WrappedParser.parse_file(path,opts.loader(),self.error_handler,opts.does_debug_parser())
 
     def semantic_analyze(self,ast,types,opts):
         LocalResolver(self.error_handler).resolve(ast)

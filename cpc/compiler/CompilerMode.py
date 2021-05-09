@@ -33,11 +33,11 @@ class CompilerMode(Enum):
     
     @staticmethod
     def is_mode_option(opt):
-        return opt in CompileMode.modes()
+        return opt in CompilerMode.modes()
     
     @staticmethod
     def from_option(opt):
-        mod = CompileMode.modes()
+        mod = CompilerMode.modes()
         if opt not in mod:
             raise Exception("must not happen: unkown mode option: " + opt)
         return mod[opt]

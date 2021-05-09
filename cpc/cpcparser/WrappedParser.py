@@ -4,16 +4,16 @@ from antlr4 import *
 
 class WrappedParser(CprestoParser):
     @staticmethod
-    def parse_file(file,loader,error_handler,debug=None):
+    def parse_file(f,loader,error_handler,debug=None):
             if debug == None:
                     debug = False
-            return Parser.new_file_parser(file,loader,error_handler,debug).parse()
+            return Parser.new_file_parser(f,loader,error_handler,debug).parse()
 
     @staticmethod
-    def parse_decl_file(file,loader,error_handler,debug=None):
+    def parse_decl_file(f,loader,error_handler,debug=None):
             if debug == None:
                     debug = False
-            return Parser.new_file_parser(file,loader,error_handler,debug).parse_decls()
+            return Parser.new_file_parser(f,loader,error_handler,debug).parse_decls()
 
     @staticmethod
     def new_file_parser(filename,loader,error_handler,debug):

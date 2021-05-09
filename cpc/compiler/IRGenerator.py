@@ -2,11 +2,6 @@ from asm.Label import Label
 from type.Type import Type
 from type.TypeTable import TypeTable
 from abst.ASTVisitor import ASTVisitor
-import abst
-import ir
-import entity
-import exception
-import utils
 
 class IRGenerator(ASTVisitor):
     def __init__(self,tt,eh):
