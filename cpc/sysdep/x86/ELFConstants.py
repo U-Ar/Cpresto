@@ -1,19 +1,19 @@
 from abc import ABCMeta,abstractmethod
 
 class ELFConstants(metaclass=ABCMeta):
-    SectionFlag_allocatable = "a"
-    SectionFlag_writable = "w"
-    SectionFlag_executable = "x"
-    SectionFlag_sectiongroup = "G"
-    SectionFlag_strings = "S"
-    SectionFlag_threadlocalstorage = "T"
+    section_flag_allocatable = "a"
+    section_flag_writable = "w"
+    section_flag_executable = "x"
+    section_flag_sectiongroup = "G"
+    section_flag_strings = "S"
+    section_flag_threadlocalstorage = "T"
 
     # argument of "G" flag
-    Linkage_linkonce = "comdat"
+    linkage_linkonce = "comdat"
 
     # Types
-    SectionType_bits = "@progbits"
-    SectionType_nobits = "@nobits"
-    SectionType_note = "@note"
+    section_type_bits = "@progbits"
+    section_type_nobits = "@nobits"
+    section_type_note = "@note"
 
-    SymbolType_function = "@function"
+    symbol_type_function = "@function"

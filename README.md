@@ -11,3 +11,7 @@ Target environment is Linux X86.
 ## Working on:
 - intermediate representation
 - code generator for X86
+
+
+## Author of /import and /test: 
+Copyright (c) 2007-2009  Minero Aoki.  All rights reserved.
