@@ -2,7 +2,7 @@ from .AddressNode import *
 from .ArefNode import *
 from .AssignNode import *
 from .AST import *
-from .ASTVisitor import *
+from .ASTVisitor import ASTVisitor
 from .BinaryOpNode import *
 from .BlockNode import *
 from .BreakNode import *

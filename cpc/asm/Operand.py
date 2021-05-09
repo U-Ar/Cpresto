@@ -1,4 +1,4 @@
-from ABCMeta import abstractmethod
+from abc import ABCMeta, abstractmethod
 from .OperandPattern import OperandPattern
 
 class Operand(OperandPattern):

@@ -14,16 +14,16 @@ class CommandUtils:
             CommandUtils.pass_through(io.StringIO(proc.stdout))
             CommandUtils.pass_through(io.StringIO(proc.stderr))
             if proc.returncode != 0:
-                error_handler(cmd_args[0] + " failed."\
+                error_handler.error(cmd_args[0] + " failed."\
                     +" (status "+str(proc.returncode)+")")
                 raise IPCException("compile error")
         except InterruptedError as ex:
             error_handler.error("external command interrupted: "\
-                                + cmd_args[0] + ": " +ex.message)
+                                + cmd_args[0] + ": " +str(ex))
             raise IPCException("compile error")
-        except Exception as ex:
+        except OSError as ex:
             error_handler.error("IO error? in external command: "\
-                + ex.message)
+                + str(ex))
             raise IPCException("compile error")
 
     @staticmethod

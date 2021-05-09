@@ -1,15 +1,17 @@
 from functools import cmp_to_key
+from abc import ABCMeta
 
 import sysdep.CodeGenerator
-import ir
-import entity
-import asm
 from abst.Location import Location
+from ir.IRVisitor import IRVisitor
+from asm.NamedSymbol import NamedSymbol
+
 from .ELFConstants import ELFConstants
-import utils
+from .RegisterClass import RegisterClass
+from cpcparser.LibraryLoader import LibraryLoader
 
 
-class CodeGenerator(sysdep.CodeGenerator,IRVisitor,ELFConstants):
+class CodeGenerator(type(sysdep.CodeGenerator)):#IRVisitor,ELFConstants,metaclass=FinalClass):
 
     def __init__(self,options,ntype,eh):
         self.options = options
@@ -27,7 +29,7 @@ class CodeGenerator(sysdep.CodeGenerator,IRVisitor,ELFConstants):
     LABEL_SYMBOL_BASE = ".L"
     CONST_SYMBOL_BASE = ".LC"
     STACK_WORD_SIZE = 4
-    GOT = NamedSymbol("_GLOVAL_OFFSET_TABLE_")
+    GOT = NamedSymbol("_GLOBAL_OFFSET_TABLE_")
     CALLEE_SAVE_REGISTERS = [RegisterClass.BX, RegisterClass.BP,
         RegisterClass.SI, RegisterClass.DI]
     PARAM_START_WORD = 2
@@ -125,13 +127,13 @@ class CodeGenerator(sysdep.CodeGenerator,IRVisitor,ELFConstants):
             expr = node
             if f._byte(expr.value()) == 1 or f._value(expr.value()) == 2 or \
                 f._long(expr.value()) == 4 or f._quad(expr.value()) == 8:
-                break
+                return
             else :
                 raise Exception("entry size must be 1,2,4,8")
         elif isinstance(node,Str):
             expr = node
             if f._long(expr.symbol()) == 4 or f._quad(expr.symbol()) == 8:
-                break
+                return
             else :
                 raise Exception("pointer size must be 4,8")
         else :
@@ -334,7 +336,7 @@ class CodeGenerator(sysdep.CodeGenerator,IRVisitor,ELFConstants):
         return res
 
     def callee_save_registers(self):
-        if self.callee_save_registers_cache = None:
+        if self.callee_save_registers_cache == None:
             regs = []
             for c in CodeGenerator.CALLEE_SAVE_REGISTERS:
                 regs.append(Register(c,self.ntype))
@@ -487,7 +489,7 @@ class CodeGenerator(sysdep.CodeGenerator,IRVisitor,ELFConstants):
     def visit(self,node): 
         if isinstance(node,Call):
             for arg in reversed(node.args()):
-                self.compile(arg):
+                self.compile(arg)
                 self.as_.push(self.ax())
             if node.is_static_call():
                 self.as_.call(node.function().calling_symbol())

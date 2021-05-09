@@ -1,4 +1,4 @@
-from LdArg import LdArg
+from .LdArg import LdArg
 import os
 
 class SourceFile(LdArg):
@@ -10,12 +10,12 @@ class SourceFile(LdArg):
     EXT_EXECUTABLE_FILE = ""
 
     KNOWN_EXTENSIONS = [
-        SourceFile.EXT_CPRESTO_SOURCE,
-        SourceFile.EXT_ASSEMBLY_SOURCE,
-        SourceFile.EXT_OBJECT_FILE,
-        SourceFile.EXT_STATIC_LIBRARY,
-        SourceFile.EXT_SHARED_LIBRARY,
-        SourceFile.EXT_EXECUTABLE_FILE
+        EXT_CPRESTO_SOURCE,
+        EXT_ASSEMBLY_SOURCE,
+        EXT_OBJECT_FILE,
+        EXT_STATIC_LIBRARY,
+        EXT_SHARED_LIBRARY,
+        EXT_EXECUTABLE_FILE
     ]
 
     def __init__(self,name):
@@ -70,7 +70,7 @@ class SourceFile(LdArg):
     def base_name(self,path,strip_ext=None):
         if strip_ext == None or strip_ext == False:
             return os.path.basename(path)
-        elif 
+        else :
             return os.path.splitext(os.path.basename(path))[0]
     
     def ext_name(self,path):

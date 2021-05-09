@@ -3,6 +3,7 @@ import entity
 import type
 from utils.ErrorHandler import ErrorHandler
 import exception
+from .Visitor import Visitor
 
 class TypeChecker(Visitor):
     def __init__(self,type_table,error_handler):
@@ -13,7 +14,7 @@ class TypeChecker(Visitor):
     def check(self,node):
         if isinstance(node,StmtNode):
             self.visit_stmt(node)
-        elif isinstance(node,ExprNode)
+        elif isinstance(node,ExprNode):
             self.visit_expr(node)
         elif isinstance(node,AST):
             ast = node

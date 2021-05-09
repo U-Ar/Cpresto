@@ -1,4 +1,4 @@
-from LdArg import LdArg
+from .LdArg import LdArg
 
 class LdOption(LdArg):
     def __init__(self,arg):

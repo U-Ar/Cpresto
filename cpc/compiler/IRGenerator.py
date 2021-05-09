@@ -1,6 +1,7 @@
 from asm.Label import Label
 from type.Type import Type
 from type.TypeTable import TypeTable
+from abst.ASTVisitor import ASTVisitor
 import abst
 import ir
 import entity
@@ -435,7 +436,7 @@ class IRGenerator(ASTVisitor):
             call = Call(self.asm_type(node.type()),
                 self.transform_expr(node.expr()),args)
             if self.is_statement():
-                self.stmts.append(ExprStmt(node.location(),call)):
+                self.stmts.append(ExprStmt(node.location(),call))
                 return None
             else :
                 tmp = self.tmp_var(node.type())

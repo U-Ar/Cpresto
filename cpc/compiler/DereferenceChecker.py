@@ -1,4 +1,4 @@
-from ..ast.AbstractAssignNode import *
+"""from ..ast.AbstractAssignNode import *
 from ..ast.AdressNode import *
 from ..ast.ArefNode import *
 from ..ast.AssignNode import *
@@ -53,11 +53,10 @@ from ..ast.UnaryArithmeticOpNode import *
 from ..ast.UnaryOpNode import *
 from ..ast.UnionNode import *
 from ..ast.VariableNode import *
-from ..ast.WhileNode import *
-
-from ..exception.SemanticException import SemanticException
-from ..exception.SemanticError import SemanticError
-from Visitor import Visitor
+from ..ast.WhileNode import *"""
+import abst
+import exception
+from .Visitor import Visitor
 
 class DereferenceChecker(Visitor):
     def __init__(self,type_table,h):

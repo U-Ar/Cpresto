@@ -3,7 +3,7 @@ from .Variable import Variable
 from .DefinedVariable import DefinedVariable
 import exception
 
-class ToplevelScope(Scope):
+class TopLevelScope(Scope):
     def __init__(self):
         super().__init__()
         self.entities = dict()

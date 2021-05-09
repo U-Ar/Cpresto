@@ -1,5 +1,5 @@
-from CprestoParser import CprestoParser
-from CprestoLexer import CprestoLexer
+from .CprestoParser import CprestoParser
+from .CprestoLexer import CprestoLexer
 from antlr4 import *
 
 class WrappedParser(CprestoParser):

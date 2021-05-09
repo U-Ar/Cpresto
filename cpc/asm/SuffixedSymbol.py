@@ -1,4 +1,5 @@
 from utils.TextUtils import TextUtils
+from .Symbol import Symbol
 
 class SuffixedSymbol(Symbol):
     def __init__(self,base,suffix):

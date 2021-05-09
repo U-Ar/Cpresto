@@ -11,3 +11,4 @@ class MemoryReference(Operand,metaclass=ABCMeta):
 
     @abstractmethod
     def cmp(self,mem):
+        pass

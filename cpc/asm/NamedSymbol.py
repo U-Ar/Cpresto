@@ -1,6 +1,5 @@
 from .BaseSymbol import BaseSymbol
 from .IntegerLiteral import IntegerLiteral
-from .NamedSymbol import NamedSymbol
 from .UnnamedSymbol import UnnamedSymbol
 from .SuffixedSymbol import SuffixedSymbol
 from utils.TextUtils import TextUtils

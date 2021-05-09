@@ -1,10 +1,17 @@
-from utils.ErrorHandler import ErrorHandler
-from exception.CompileException import CompileException
-from exception.OptionParseError import OptionParseError
-from exception.SyntaxException import SyntaxException
-from exception.FileException import FileException
-from .CompilerMode import CompilerMode
 import sys
+
+from .CompilerMode import CompilerMode
+from .DereferenceChecker import DereferenceChecker
+from .IRGenerator import IRGenerator
+from .LdOption import LdOption
+from .LocalResolver import LocalResolver
+from .Options import Options
+from .SourceFile import SourceFile
+from .TypeChecker import TypeChecker
+from .TypeResolver import TypeResolver
+from utils.ErrorHandler import ErrorHandler
+from exception.OptionParseError import OptionParseError
+from exception.CompileException import CompileException
 
 class Compiler:
     program_name = "cpc"
@@ -23,7 +30,7 @@ class Compiler:
         if opts.mode() == CompilerMode.CheckSyntax:
             sys.exit(0 if self.check_syntax(opts) else 1)
         try:
-            srcs = opts.source_files():
+            srcs = opts.source_files()
             self.build(srcs, opts)
             sys.exit(0)
         except CompileException as ex:
@@ -199,5 +206,4 @@ class Compiler:
     def error_exit(self,msg):
         self.error_handler.error(msg)
         sys.exit(1)
-
 

@@ -2,7 +2,7 @@ from .Platform import Platform
 from .GNUAssembler import GNUAssembler
 from .GNULinker import GNULinker
 from type.TypeTable import TypeTable
-import x86.CodeGenerator
+from sysdep.x86.CodeGenerator import CodeGenerator
 from asm.Type import Type
 
 class X86Linux(Platform):
@@ -10,7 +10,7 @@ class X86Linux(Platform):
         return TypeTable.ilp32
     
     def code_generator(self,opts,h):
-        return x86.CodeGenerator(opts,self.natural_type(),h)
+        return CodeGenerator(opts,self.natural_type(),h)
     
     def natural_type(self):
         return Type.INT32

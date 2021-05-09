@@ -1,4 +1,15 @@
 import re
+from sysdep.X86Linux import X86Linux
+from cpcparser.LibraryLoader import LibraryLoader
+from sysdep.CodeGeneratorOptions import CodeGeneratorOptions
+from sysdep.AssemblerOptions import AssemblerOptions
+from sysdep.LinkerOptions import LinkerOptions
+
+from exception.CompileException import CompileException
+
+from .CompilerMode import CompilerMode
+from .SourceFile import SourceFile
+
 
 class Options:
     @staticmethod
@@ -52,7 +63,7 @@ class Options:
 
     def linked_file_name(self,new_ext):
         if self._output_file_name != None:
-            return self.self._output_file_name
+            return self._output_file_name
         elif len(self._source_files) == 1:
             return self._source_files[0].linked_file_name(new_ext)
         else :
@@ -91,9 +102,9 @@ class Options:
         ld_args = []
         i = 0
         cmodes = CompilerMode.modes()
-        while i < len(orig_args) - 1:
-            arg = orig_args[i+1]
-            i += 1
+        while i < len(orig_args):
+            arg = orig_args[i]
+            
             if arg == "--":
                 break
             elif arg.startswith("-"):
@@ -168,6 +179,7 @@ class Options:
 
             else :
                 ld_args.append(SourceFile(arg))
+            i += 1
         
         while i < len(orig_args) - 1:
             i += 1

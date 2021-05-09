@@ -1,7 +1,7 @@
 from exception.SemanticException import SemanticException
 from abst.Declarations import Declarations
 from exception.FileException import FileException
-from WrappedParser import WrappedParser
+from .WrappedParser import WrappedParser
 import os
 
 class LibraryLoader:
