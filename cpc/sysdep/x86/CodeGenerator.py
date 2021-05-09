@@ -1,3 +1,5 @@
+from functools import cmp_to_key
+
 import sysdep.CodeGenerator
 import ir
 import entity
@@ -6,12 +8,17 @@ from abst.Location import Location
 from .ELFConstants import ELFConstants
 import utils
 
+
 class CodeGenerator(sysdep.CodeGenerator,IRVisitor,ELFConstants):
 
     def __init__(self,options,ntype,eh):
         self.options = options
         self.ntype = ntype
         self.eh = eh
+
+        self.as_ = None
+        self.epilogue = None
+        self.callee_save_registers_cache = None
     
     def generate(self,ir):
         self.locate_symbols(ir)
@@ -21,6 +28,9 @@ class CodeGenerator(sysdep.CodeGenerator,IRVisitor,ELFConstants):
     CONST_SYMBOL_BASE = ".LC"
     STACK_WORD_SIZE = 4
     GOT = NamedSymbol("_GLOVAL_OFFSET_TABLE_")
+    CALLEE_SAVE_REGISTERS = [RegisterClass.BX, RegisterClass.BP,
+        RegisterClass.SI, RegisterClass.DI]
+    PARAM_START_WORD = 2
 
     def locate_symbols(self,ir):
         const_symbols = SymbolTable(CodeGenerator.CONST_SYMBOL_BASE)
@@ -272,6 +282,228 @@ class CodeGenerator(sysdep.CodeGenerator,IRVisitor,ELFConstants):
             self.print_stack_frame_layout(f,frame,func.local_variables())
         
         self.generate_function_body(f,body,frame)
+
+    
+    def optimize(self,body):
+        if self.options.optimize_level() < 1:
+            return body
+        body.apply(PeepholeOptimizer.default_set())
+        body.reduce_labels()
+        return body
+    
+    def print_stack_frame_layout(self,f,frame,lvars):
+        vs = []
+        for var in lvars:
+            vs.append(MemInfo(var.memref(),var.name()))
+        vs.append(MemInfo(self.mem(0,self.bp()),"return address"))
+        vs.append(MemInfo(self.mem(4,self.bp()),"saved %%ebp"))
+        if frame.save_regs_size() > 0:
+            vs.append(MemInfo(self.mem(-frame.save_regs_size(),self.bp()),
+                "saved callee-saved registers (" + str(frame.save_regs_size())+" bytes)"))
+        if frame.temp_size > 0:
+            vs.append(MemInfo(self.mem(-frame.frame_size(),self.bp()),
+                "tmp variables (" + frame.temp_size + " bytes)"))
+        
+        vs.sort(key=cmp_to_key(lambda x, y: x.mem.compare_to(y.mem)))
+
+        f.comment("---- Stack Frame Layout --------")
+        for info in vs:
+            f.comment(info.mem.to_string()+": "+info.name)
+        f.comment("--------------------------------")
+    
+    class MemInfo:
+        def __init__(self,mem,name):
+            self.mem = mem
+            self.name = name
+    
+
+    def compile_stmts(self,func):
+        self.as_ = self.new_assembly_code()
+        self.epilogue = Label()
+        for s in func.ir():
+            self.compile_stmt(s)
+        self.as_.label(epilogue)
+        return self.as_
+    
+    def used_callee_save_registers(self,body):
+        res = []
+        for reg in self.callee_save_registers():
+            if body.does_used(reg):
+                res.append(reg)
+        res.pop(self.bp())
+        return res
+
+    def callee_save_registers(self):
+        if self.callee_save_registers_cache = None:
+            regs = []
+            for c in CodeGenerator.CALLEE_SAVE_REGISTERS:
+                regs.append(Register(c,self.ntype))
+            self.callee_save_registers_cache = regs
+        return self.callee_save_registers_cache
+    
+    def generate_function_body(self,f,body,frame):
+        f.virtual_stack.reset()
+        self.prologue(f,frame.save_regs,frame.frame_size())
+        if self.options.is_position_independent() and body.does_uses(self.GOT_base_reg()):
+            self.load_GOT_base_address(f,self.GOT_base_reg())
+        f.add_all(body.assemblies())
+        self.epilogue(f,frame.save_regs)
+        f.virtual_stack.fix_offset(0)
+
+    def prologue(self,f,save_regs,frame_size):
+        f.push(self.bp())
+        f.mov(self.sp(),self.bp())
+        for reg in save_regs:
+            f.virtual_push(reg)
+        self.extend_stack(f,frame_size)
+    
+    def epilogue(self,f,saved_regs):
+        for reg in reversed(saved_regs):
+            f.virtual_pop(reg)
+        f.mov(self.bp(),self.sp())
+        f.pop(self.bp())
+        f.ret()
+    
+    def locate_parameters(self,params):
+        num = CodeGenerator.PARAM_START_WORD
+        for var in params:
+            var.set_memref(self.mem(self.stack_size_from_word_num(num),self.bp()))
+            num += 1
+    
+    def locate_local_variables(self,scope,pstacklen=0):
+        l = pstacklen
+        for var in scope.local_variables():
+            l = self.align_stack(l+var.alloc_size())
+            var.set_memref(self.relocatable_mem(-l,self.bp()))
+        maxl = l
+        for s in scope.children():
+            childl = self.locate_local_variables(s,l)
+            maxl = max(maxl,childl)
+        return maxl
+    
+    def relocatable_mem(self,offset,base):
+        return IndirectMemoryReference.relocatable(offset,base)
+    
+    def fix_local_variable_offsets(self,scope,l):
+        for var in scope.all_local_variables():
+            var.memref().fix_offset(-l)
+    
+    def fix_temp_variable_offsets(self,asm,l):
+        asm.virtual_stack.fix_offset(-l)
+    
+    def extend_stack(self,f,l):
+        if l > 0:
+            f.sub(self.imm(l),self.sp())
+    
+    def rewind_stack(self,f,l):
+        if l > 0:
+            f.add(self.imm(l),self.sp())
+    
+    #
+    # Visit for IR
+    #
+    def visit(self,node): 
+
+
+
+
+    
+    #
+    # Utilities
+    #
+    
+    def load_constant(self,node,reg):
+        if node.asm_value() != None:
+            self.as_.mov(node.asm_value(),reg)
+        elif node.memref() != None:
+            self.as_.lea(node.memref(),reg)
+        else :
+            raise Exception("must not happen: constant has no asm value")
+    
+    def load_variable(self,var,dest):
+        if var.memref() == None:
+            a = des.for_type(self.ntype)
+            self.as_.mov(var.address(),a)
+            self.load(self.mem(a),dest.for_type(var.type()))
+        else :
+            self.load(var.memref(),dest.for_type(var.type()))
+    
+    def load_address(self,var,dest):
+        if var.address() != None:
+            self.as_.mov(var.address(),dest)
+        else :
+            self.as_.mov(var.memref(),dest)
+    
+    def ax(self,t=None):
+        if t == None:
+            return Register(RegisterClass.AX,self.ntype)
+        else :
+            return Register(RegisterClass.AX,t)
+    
+    def bx(self,t=None):
+        if t == None:
+            return Register(RegisterClass.BX,self.ntype)
+        else :
+            return Register(RegisterClass.BX,t)
+    
+    def cx(self,t=None):
+        if t == None:
+            return Register(RegisterClass.CX,self.ntype)
+        else :
+            return Register(RegisterClass.CX,t)
+    
+    def dx(self,t=None):
+        if t == None:
+            return Register(RegisterClass.DX,self.ntype)
+        else :
+            return Register(RegisterClass.DX,t)
+    
+    def al(self):
+        return self.ax(Type.INT8)
+    
+    def cl(self):
+        return self.cx(Type.INT8)
+
+    def si(self):
+        return Register(RegisterClass.SI, self.ntype)
+    
+    def di(self):
+        return Register(RegisterClass.DI, self.ntype)
+    
+    def bp(self):
+        return Register(RegisterClass.BP, self.ntype)
+    
+    def sp(self):
+        return Register(RegisterClass.SP, self.ntype)
+
+    def mem(self,a1,a2=None):
+        if a2 == None:
+            if isinstance(a1,Symbol):
+                return DirectMemoryReference(a1)
+            else :
+                return IndirectMemoryReference(0,a1)
+        else :
+            return IndirectMemoryReference(a1,a2)
+    
+    def imm(self,n):
+        return ImmediateValue(n)
+
+    def load(self,mem,reg):
+        self.as_.mov(mem,reg)
+    
+    def store(self,reg,mem):
+        self.as_.mov(reg,mem)
+        
+
+
+
+    
+    
+
+
+    
+    
+
 
     
 
