@@ -5,10 +5,10 @@ class GNULinker(Linker):
     # 32bit Linux dependent
     LINKER = "/usr/bin/ld"
     DYNAMIC_LINKER      = "/lib/ld-linux.so.2"
-    C_RUNTIME_INIT      = "/usr/lib/crti.o"
-    C_RUNTIME_START     = "/usr/lib/crt1.o"
-    C_RUNTIME_START_PIE = "/usr/lib/Scrt1.o"
-    C_RUNTIME_FINI      = "/usr/lib/crtn.o"
+    C_RUNTIME_INIT      = "/usr/lib32/crti.o"
+    C_RUNTIME_START     = "/usr/lib32/crt1.o"
+    C_RUNTIME_START_PIE = "/usr/lib32/Scrt1.o"
+    C_RUNTIME_FINI      = "/usr/lib32/crtn.o"
 
     def __init__(self,error_handler):
         self.error_handler = error_handler
