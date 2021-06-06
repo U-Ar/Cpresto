@@ -1,14 +1,17 @@
-import re
+import re, sys
 from sysdep.X86Linux import X86Linux
 from cpcparser.LibraryLoader import LibraryLoader
+
 from sysdep.CodeGeneratorOptions import CodeGeneratorOptions
 from sysdep.AssemblerOptions import AssemblerOptions
 from sysdep.LinkerOptions import LinkerOptions
 
 from exception.CompileException import CompileException
+from exception.OptionParseError import OptionParseError
 
 from .CompilerMode import CompilerMode
 from .SourceFile import SourceFile
+from .LdOption import LdOption
 
 
 class Options:
@@ -98,7 +101,7 @@ class Options:
         return self._ld_options.generating_shared_library
     
     def parse_args(self,orig_args):
-        source_files = []
+        self._source_files = []
         ld_args = []
         i = 0
         cmodes = CompilerMode.modes()
@@ -114,11 +117,16 @@ class Options:
                             + arg + " option is exclusive")
                     self._mode = CompilerMode.from_option(arg)
                 elif arg.startswith("-I"):
-                    self._loader.add_load_path(self.get_opt_arg(arg,orig_args,i))
+                    is_next, path = self.get_opt_arg(arg,orig_args,i)
+                    self._loader.add_load_path(path)
+                    if is_next:
+                        i += 1
                 elif arg == "--debug-parser":
                     self._debug_parser = True
                 elif arg.startswith("-o"):
-                    self._output_file_name = self.get_opt_arg(arg,orig_args,i)
+                    is_next, self._output_file_name = self.get_opt_arg(arg,orig_args,i)
+                    if is_next:
+                        i += 1
                 elif arg == "-fpic" or arg == "-fPIC":
                     self._gen_options.generate_PIC()
                 elif arg == "-fpie" or arg == "-fPIE":
@@ -135,6 +143,7 @@ class Options:
                         self._as_options.add_arg(a)
                 elif arg == "-Xassembler":
                     self._as_options.add_arg(self.next_arg(arg, orig_args, i))
+                    i += 1
                 elif arg == "-static":
                     self.add_ld_arg(arg)
                 elif arg == "-shared":
@@ -149,9 +158,15 @@ class Options:
                     self.add_ld_arg("-z")
                     self.add_ld_arg("relro")
                 elif arg.startswith("-L"):
-                    self.add_ld_arg("-L"+self.get_opt_arg(arg,orig_args,i))
+                    is_next, path = self.get_opt_arg(arg,orig_args,i)
+                    self.add_ld_arg("-L"+path)
+                    if is_next:
+                        i += 1
                 elif arg.startswith("-I"):
-                    self.add_ld_arg("-I"+self.get_opt_arg(arg,orig_args,i))
+                    is_next, path = self.get_opt_arg(arg,orig_args,i)
+                    self.add_ld_arg("-I"+path)
+                    if is_next:
+                        i += 1
                 elif arg == "-nostartfiles":
                     self._ld_options.no_start_files = True
                 elif arg == "-nodefaultlibs":
@@ -164,12 +179,13 @@ class Options:
                         self.add_ld_arg(o)
                 elif arg == "-Xlinker":
                     self.add_ld_arg(self.next_arg(arg,orig_args,i))
+                    i += 1
                 elif arg == "-v":
                     self._verbose = True
                     self._as_options.verbose = True
                     self._ld_options.verbose = True
                 elif arg == "--version":
-                    print("{} version {}".format(Compiler.program_name,Compiler.version))
+                    print("cpc version 1.0.0")
                     sys.exit(0)
                 elif arg == "--help":
                     self.print_usage(sys.stdout)
@@ -187,13 +203,13 @@ class Options:
         
         if self._mode == None:
             self._mode = CompilerMode.Link
-        source_files = self.select_source_files(ld_args)
-        if len(source_files) == 0:
+        self._source_files = self.select_source_files(ld_args)
+        if len(self._source_files) == 0:
             self.parse_error("no input file")
-        for src in source_files:
+        for src in self._source_files:
             if not src.is_known_file_type():
                 self.parse_error("unknown file type: " + src.path())
-        if self._output_file_name != None and len(source_files)>1 and not self.is_link_required():
+        if self._output_file_name != None and len(self._source_files)>1 and not self.is_link_required():
             self.parse_error("-o option requires only 1 input (except linking)")
 
 
@@ -215,9 +231,9 @@ class Options:
     def get_opt_arg(self,opt,args,i):
         path = opt[2:]
         if len(path) != 0:
-            return path
+            return False,path
         else :
-            return self.next_arg(opt,args,i)
+            return True,self.next_arg(opt,args,i)
     
     def next_arg(self,opt, args,i):
         if len(args) - 1 <= i:

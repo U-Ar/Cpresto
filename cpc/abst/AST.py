@@ -9,7 +9,7 @@ class AST(Node):
     def __init__(self,source,declarations):
         super().__init__()
         self.source = source
-        self.declarations = declarations
+        self._declarations = declarations
         self.scope = None
         self.constant_table = None
     
@@ -18,41 +18,41 @@ class AST(Node):
     
     def types(self):
         result = []
-        result += self.declarations.defstructs()
-        result += self.declarations.defunions()
-        result += self.declarations.typedefs()
+        result += self._declarations.defstructs()
+        result += self._declarations.defunions()
+        result += self._declarations.typedefs()
         return result
 
     def entities(self):
         result = []
-        result += self.declarations.funcdecls()
-        result += self.declarations.vardecls()
-        result += self.declarations.defvars()
-        result += self.declarations.defuns()
-        result += self.declarations.constants()
+        result += self._declarations.funcdecls()
+        result += self._declarations.vardecls()
+        result += self._declarations.defvars()
+        result += self._declarations.defuns()
+        result += self._declarations.constants()
         return result
     
     def declarations(self):
         result = []
-        result += self.declarations.funcdecls()
-        result += self.declarations.vardecls()
+        result += self._declarations.funcdecls()
+        result += self._declarations.vardecls()
         return result
     
     def definitions(self):
         result = []
-        result += self.declarations.defvars()
-        result += self.declarations.defuns()
-        result += self.declarations.constants()
+        result += self._declarations.defvars()
+        result += self._declarations.defuns()
+        result += self._declarations.constants()
         return result
     
     def constants(self):
-        return self.declarations.constants()
+        return self._declarations.constants()
     
     def defined_variables(self):
-        return self.declarations.defvars()
+        return self._declarations.defvars()
     
     def defined_functions(self):
-        return self.declarations.defuns()
+        return self._declarations.defuns()
     
     #called by LocalResolver
     def set_scope(self,scope):
@@ -78,9 +78,9 @@ class AST(Node):
     
     def ir(self):
         return IR(self.source,
-                self.declarations.defvars(),
-                self.declarations.defuns(),
-                self.declarations.funcdecls(),
+                self._declarations.defvars(),
+                self._declarations.defuns(),
+                self._declarations.funcdecls(),
                 self.scope,
                 self.constant_table)
     

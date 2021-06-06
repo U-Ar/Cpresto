@@ -1,7 +1,8 @@
 from .Scope import Scope
 from .Variable import Variable
 from .DefinedVariable import DefinedVariable
-import exception
+
+from exception.SemanticException import SemanticException
 
 class TopLevelScope(Scope):
     def __init__(self):

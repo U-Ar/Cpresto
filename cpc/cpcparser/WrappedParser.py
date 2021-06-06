@@ -1,19 +1,20 @@
 from .CprestoParser import CprestoParser
 from .CprestoLexer import CprestoLexer
 from antlr4 import *
+from exception.FileException import FileException
 
 class WrappedParser(CprestoParser):
     @staticmethod
     def parse_file(f,loader,error_handler,debug=None):
             if debug == None:
                     debug = False
-            return Parser.new_file_parser(f,loader,error_handler,debug).parse()
+            return WrappedParser.new_file_parser(f,loader,error_handler,debug).parse()
 
     @staticmethod
     def parse_decl_file(f,loader,error_handler,debug=None):
             if debug == None:
                     debug = False
-            return Parser.new_file_parser(f,loader,error_handler,debug).parse_decls()
+            return WrappedParser.new_file_parser(f,loader,error_handler,debug).parse_decls()
 
     @staticmethod
     def new_file_parser(filename,loader,error_handler,debug):

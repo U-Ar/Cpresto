@@ -24,7 +24,7 @@ class Location:
         return self._token.included_line()
     
     def numbered_line(self):
-        return "line " + self._token.lineno() + ": " + self.line()
+        return "line " + str(self._token.lineno()) + ": " + self.line()
     
     def to_string(self):
-        return self._source_name + ":" + self._token.lineno()
+        return self._source_name + ":" + str(self._token.lineno())

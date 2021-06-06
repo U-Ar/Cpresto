@@ -2,12 +2,11 @@ from entity.ConstantTable import ConstantTable
 from entity.TopLevelScope import TopLevelScope
 from entity.LocalScope import LocalScope
 
-from abst.AbstractAssignNode import *
 from abst.AddressNode import *
 from abst.ArefNode import *
 from abst.AssignNode import *
 from abst.AST import *
-from abst.ASTVisitor import *
+from abst.ASTVisitor import ASTVisitor
 from abst.BinaryOpNode import *
 from abst.BlockNode import *
 from abst.BreakNode import *
@@ -21,7 +20,7 @@ from abst.Declarations import *
 from abst.DeclarationVisitor import *
 from abst.DereferenceNode import *
 from abst.DoWhileNode import *
-from abst.Dumpable import *
+from abst.Dumpable import Dumpable
 from abst.Dumper import *
 from abst.ExprNode import *
 from abst.ExprStmtNode import *
@@ -70,7 +69,7 @@ class LocalResolver(Visitor):
     
     def resolve(self,n):
         if isinstance(n,AST):
-            toplevel = ToplevelScope()
+            toplevel = TopLevelScope()
             self.scope_stack.append(toplevel)
             for decl in n.declarations():
                 toplevel.declare_entity(decl)

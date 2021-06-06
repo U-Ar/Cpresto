@@ -10,13 +10,13 @@ class Declarations:
         self._typedefs = set()
     
     def add(self,decls):
-        self._defvars = self._defvars | decls.defvars()
-        self._vardecls = self._vardecls | decls.vardecls()
-        self._funcdecls = self._funcdecls | decls.funcdecls()
-        self._constants = self._constants | decls.constants()
-        self._defstructs = self._defstructs | decls.defstructs()
-        self._defunions = self._defunions | decls.defunions()
-        self._typedefs = self._typedefs | decls.typedefs()
+        self._defvars = self._defvars | set(decls.defvars())
+        self._vardecls = self._vardecls | set(decls.vardecls())
+        self._funcdecls = self._funcdecls | set(decls.funcdecls())
+        self._constants = self._constants | set(decls.constants())
+        self._defstructs = self._defstructs | set(decls.defstructs())
+        self._defunions = self._defunions | set(decls.defunions())
+        self._typedefs = self._typedefs | set(decls.typedefs())
 
     def add_defvar(self,var):
         self._defvars.add(var)

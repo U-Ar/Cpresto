@@ -51,16 +51,16 @@ class IntegerTypeRef(TypeRef):
 
     def __init__(self,name,loc=None):
         super().__init__(loc)
-        self.name = name
+        self._name = name
     
     def name(self):
-        return self.name
+        return self._name
 
     def equals(self,other):
         if not isinstance(other,IntegerTypeRef):
             return False
-        return self.name == other.name()
-    
+        return self.name() == other.name()
+          
     def to_string(self):
-        return self.name
+        return self._name
     

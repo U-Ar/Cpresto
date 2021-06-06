@@ -7,7 +7,7 @@ class CprestoToken:
         else :
             self.is_special = is_special
         self.token = token
-        self.kind_name = kindname
+        self._kind_name = kindname
     
     def to_string(self):
         return self.token.text
@@ -19,7 +19,7 @@ class CprestoToken:
         return self.token.type
     
     def kind_name(self):
-        return self.kind_name
+        return self._kind_name
 
     def lineno(self):
         return self.token.line

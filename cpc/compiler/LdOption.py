@@ -8,4 +8,4 @@ class LdOption(LdArg):
         return False
     
     def to_string(self):
-        return arg
+        return self.arg

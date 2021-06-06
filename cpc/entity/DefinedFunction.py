@@ -27,7 +27,7 @@ class DefinedFunction(Function):
         self.scope = scope
     
     def lvar_scope(self):
-        return self._body().scope()
+        return self.body().scope()
     
     # Returns function local variables.
     # Does NOT include paramters.
@@ -38,7 +38,7 @@ class DefinedFunction(Function):
     def _dump(self,dumper):
         dumper.print_member("name", self.name())
         dumper.print_member("is_private", self.is_private())
-        dumper.print_member("params", self.params())
+        dumper.print_member("params", self.params)
         dumper.print_member("body", self._body)
     
     def accept(self,visitor):

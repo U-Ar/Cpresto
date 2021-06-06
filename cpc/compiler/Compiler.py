@@ -9,9 +9,11 @@ from .Options import Options
 from .SourceFile import SourceFile
 from .TypeChecker import TypeChecker
 from .TypeResolver import TypeResolver
+from cpcparser.WrappedParser import WrappedParser
 from utils.ErrorHandler import ErrorHandler
 from exception.OptionParseError import OptionParseError
 from exception.CompileException import CompileException
+from exception.FileException import FileException
 
 class Compiler:
     program_name = "cpc"
@@ -83,7 +85,7 @@ class Compiler:
         self.link(opts)
     
     def compile(self,srcpath,destpath,opts):
-        ast = self.parse_file(srcpath,opts)
+        ast = self.parse_file(srcpath,opts).res
         if self.dump_AST(ast,opts.mode()):
             return 
         types = opts.type_table()

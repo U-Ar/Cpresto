@@ -274,7 +274,7 @@ $res = $buf
 funcdecl returns [res] locals [t] :
         EXTERN ret=typeref n=name '(' ps=params ')' ';'
 {
-$t = FunctionTypeRef(ret,localctx.ps.res.parameters_type_ref())
+$t = FunctionTypeRef(localctx.ret.res,localctx.ps.res.parameters_type_ref())
 $res = UndefinedFunction(TypeNode($t),localctx.n.res,localctx.ps.res)
 } ; // funcdecl
 
@@ -494,7 +494,7 @@ localctx.ref.res = PointerTypeRef(localctx.ref.res)
 }
         | '(' pms=param_typerefs ')'
 {
-localctx.ref.res = FunctionTypeRef(localctx.ref.res,pms)
+localctx.ref.res = FunctionTypeRef(localctx.ref.res,localctx.pms.res)
 }
         )* 
 {
@@ -1110,7 +1110,7 @@ $t = self._input.LT(1)
         impdecls=import_stmts decls=top_defs
 {
 if localctx.impdecls.res != None:
-        localctx.decls.res.add($impdecls.res)
+        localctx.decls.res.add(localctx.impdecls.res)
 $res=AST(self.location($t),localctx.decls.res) 
 } ; // compilation_unit
 

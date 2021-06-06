@@ -1,7 +1,6 @@
 from type.TypeRef import *
 from type.Type import *
 from utils.TextUtils import *
-from .TypeNode import *
 from .Dumpable import *
 
 class Dumper:
@@ -13,13 +12,20 @@ class Dumper:
     
     def print_class(self,obj,loc):
         self.print_indent()
-        self.stream.write("<<" + obj.get_class().get_simple_name() + ">> ("+loc+")\n")
+        print(type(obj).__name__)
+        print(obj)
+        print(type(loc).__name__)
+        print(loc)
+        if callable(loc):
+            print(loc())
+        self.stream.write("<<" + type(obj).__name__ + ">> ("+loc.to_string()+")\n")
     
     def print_node_list(self,name,nodes):
         self.print_indent()
         self.stream.write(name+":\n")
         self.indent()
         for n in nodes:
+            print(nodes)
             n.dump(self)
         self.unindent()
     

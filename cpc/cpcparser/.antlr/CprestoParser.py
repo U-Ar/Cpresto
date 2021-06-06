@@ -1073,7 +1073,7 @@ class CprestoParser ( Parser ):
             self.state = 153
             self.match(CprestoParser.T__1)
 
-            localctx.t = FunctionTypeRef(ret,localctx.ps.res.parameters_type_ref())
+            localctx.t = FunctionTypeRef(localctx.ret.res,localctx.ps.res.parameters_type_ref())
             localctx.res = UndefinedFunction(TypeNode(localctx.t),localctx.n.res,localctx.ps.res)
 
         except RecognitionException as re:
@@ -2282,7 +2282,7 @@ class CprestoParser ( Parser ):
                     self.state = 335
                     self.match(CprestoParser.T__3)
 
-                    localctx.ref.res = FunctionTypeRef(localctx.ref.res,pms)
+                    localctx.ref.res = FunctionTypeRef(localctx.ref.res,localctx.pms.res)
 
                     pass
 

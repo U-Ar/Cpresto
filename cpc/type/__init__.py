@@ -6,7 +6,6 @@ from .FunctionTypeRef import *
 from .IntegerType import *
 from .IntegerTypeRef import *
 from .NamedType import *
-from .ParamTypeRefs import *
 from .ParamTypes import *
 from .PointerType import *
 from .PointerTypeRef import *
